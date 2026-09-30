@@ -7,8 +7,10 @@ Requires:  pip install PyOpenGL pygame
 Controls
 --------
 Translate : A / D = left / right     W / S = up / down     Q / E = away / closer
-Rotate    : I / K = around X         J / L = around Y       U / O = around Z
+Rotate    : I / K (or Up / Down) = around X     J / L (or Left / Right) = around Y
+            U / O = around Z
 Scale     : + / - = bigger / smaller
+Spin      : SPACE = start / stop automatic rotation (on at start)
 Quit      : ESC
 """
 import pygame
@@ -47,6 +49,10 @@ ACTIONS = {
     pygame.K_l: lambda: glRotatef(ANGLE, 0, 1, 0),
     pygame.K_u: lambda: glRotatef(-ANGLE, 0, 0, 1),
     pygame.K_o: lambda: glRotatef(ANGLE, 0, 0, 1),
+    pygame.K_UP: lambda: glRotatef(-ANGLE, 1, 0, 0),
+    pygame.K_DOWN: lambda: glRotatef(ANGLE, 1, 0, 0),
+    pygame.K_LEFT: lambda: glRotatef(-ANGLE, 0, 1, 0),
+    pygame.K_RIGHT: lambda: glRotatef(ANGLE, 0, 1, 0),
     pygame.K_EQUALS: lambda: glScalef(1.1, 1.1, 1.1),
     pygame.K_PLUS: lambda: glScalef(1.1, 1.1, 1.1),
     pygame.K_MINUS: lambda: glScalef(0.9, 0.9, 0.9),
@@ -75,14 +81,21 @@ def main():
     glRotatef(25, 1, 1, 0)
     glScalef(0.6, 0.6, 0.6)          # decrease the size of the cube
 
+    spinning = True
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT or (
                     event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                 pygame.quit()
                 return
-            if event.type == pygame.KEYDOWN and event.key in ACTIONS:
-                ACTIONS[event.key]()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    spinning = not spinning
+                elif event.key in ACTIONS:
+                    ACTIONS[event.key]()
+
+        if spinning:
+            glRotatef(1, 1, 1, 0)        # continuous rotation
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         draw_cube()
