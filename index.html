@@ -260,7 +260,7 @@ input[type=text].themein:hover{border-bottom-color:var(--dc)}
 .recs-h h2{font:700 1.3rem/1.2 var(--font-display)}
 .recs-grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
 .rec{border:1.5px solid var(--line);border-radius:12px;padding:14px;display:grid;gap:8px;align-content:start;background:var(--bg)}
-.rec:first-child{border-color:var(--blue)}
+
 .rec h3{font:700 1.25rem/1.15 var(--font-display)}
 .rec-rank{font:500 10.5px/1 var(--font-mono);letter-spacing:.09em;text-transform:uppercase;color:var(--red)}
 .why{list-style:none;margin:0;padding:0;display:grid;gap:4px;font-size:13px}
@@ -272,16 +272,9 @@ input[type=text].themein:hover{border-bottom-color:var(--dc)}
 .wavetext::before,.wavetext::after{content:"";position:absolute;left:0;right:0;height:30px;--w:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 30'%3E%3Cpath d='M0 16 Q15 2 30 16 T60 16 T90 16 T120 16 V30 H0Z'/%3E%3C/svg%3E");-webkit-mask:var(--w) repeat-x 0 0/120px 30px;mask:var(--w) repeat-x 0 0/120px 30px}
 .wavetext::before{top:-4px;background:var(--sea3);z-index:-1}
 .wavetext::after{top:-14px;background:var(--sea2);opacity:.8;z-index:-2;-webkit-mask-position:60px 0;mask-position:60px 0}
-@media (prefers-reduced-motion:no-preference){
-  .wavetext::before{animation:drift 9s linear infinite}
-  .wavetext::after{animation:drift2 13s linear infinite}
-  @keyframes drift{to{-webkit-mask-position:-120px 0;mask-position:-120px 0}}
-  @keyframes drift2{from{-webkit-mask-position:60px 0;mask-position:60px 0}to{-webkit-mask-position:180px 0;mask-position:180px 0}}
-}
 
 .wv-word{display:inline-block;white-space:nowrap}
 .wv-ch{display:inline-block;transform:translateY(var(--y,0))}
-@media (prefers-reduced-motion:no-preference){.wv-ch{transform:none;animation:wv 2.4s ease-in-out infinite;animation-delay:var(--d,0s)}@keyframes wv{0%,100%{transform:translateY(-3px)}50%{transform:translateY(3px)}}}
 .wavetext .tagline{padding-block:4px}
 .mtabs{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surface)}
 .mtab{font:700 14px/1.2 var(--font-body);padding:12px 10px;border:0;background:transparent;color:var(--fg);cursor:pointer}
@@ -298,6 +291,12 @@ input[type=text].themein:hover{border-bottom-color:var(--dc)}
 .hl{margin:0;padding-left:18px;font-size:13px;color:var(--muted)}
 .rec-foot{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin-top:4px}
 .rec-foot .btn{margin:0}
+
+.rec-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.tt{flex:none;font:600 12px/1 var(--font-mono);padding:5px 8px;border-radius:999px;background:var(--blue);color:var(--blue-ink);white-space:nowrap}
+.rec-meta{font:500 10.5px/1.3 var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.why-text{font-size:13.5px}
+.rec .btn.ghost{justify-self:start}
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
@@ -797,6 +796,178 @@ function recommend(f){
   return picks.slice(0, 3);
 }
 
+/* ---------- nearby places: powers "Trips You Might Also Like" for destinations without built-in stops ---------- */
+var SPOTS = {};
+(function(){
+  // name or DESTS key, lat, lng, island group, type, highlights, travelers, mountain-road flag
+  var rows = [
+    ['Manila, Philippines',14.60,120.98,'luzon','city',['Intramuros','Binondo food crawl','National museums'],'Culture lovers · Foodies · Solo'],
+    ['Baguio, Philippines',16.41,120.59,'luzon','city',['Pine forests','Art museums','Strawberry farms'],'Families · Couples · Friends'],
+    ['Sagada, Mountain Province, Philippines',17.08,120.90,'luzon','nature',['Hanging coffins','Caves','Sunrise above the clouds'],'Hikers · Adventure seekers · Solo',1],
+    ['Banaue, Ifugao, Philippines',16.92,121.06,'luzon','nature',['Rice terraces','Viewpoints','Ifugao villages'],'Hikers · Photographers · Culture lovers',1],
+    ['Vigan, Ilocos Sur, Philippines',17.57,120.39,'luzon','culture',['Calle Crisologo','Calesa rides','Vigan empanada'],'Couples · Culture lovers · Foodies'],
+    ['Pagudpud, Ilocos Norte, Philippines',18.56,120.79,'luzon','beach',['Saud Beach','Bangui Windmills','Blue Lagoon'],'Couples · Friends · Families'],
+    ['San Juan, La Union, Philippines',16.67,120.33,'luzon','beach',['Surf lessons','Cafes and bars','Beach sunsets'],'Friends · Solo · Surf beginners'],
+    ['Baler, Aurora, Philippines',15.76,121.56,'luzon','beach',['Sabang Beach surf','Ditumabo Mother Falls','Aurora Memorial Park'],'Friends · Solo · Families'],
+    ['Tagaytay, Cavite, Philippines',14.10,120.96,'luzon','nature',['Taal Volcano views','Cool-weather cafes','Picnic Grove'],'Families · Couples · Foodies'],
+    ['Zambales coast (Anawangin and Potipot), Philippines',14.93,120.00,'luzon','beach',['Anawangin Cove','Capones Island','Camping among pine trees'],'Campers · Friends · Photographers'],
+    ['Puerto Galera, Oriental Mindoro, Philippines',13.50,120.95,'mindoro','beach',['White Beach','Diving and snorkeling','Island hopping'],'Divers · Friends · Couples'],
+    ['Batanes, Philippines',20.45,121.97,'batanes','nature',['Rolling hills','Basco lighthouses','Stone houses'],'Photographers · Couples · Slow travelers'],
+    ['Legazpi and Mayon, Albay, Philippines',13.14,123.74,'luzon','nature',['Mayon Volcano views','Cagsawa Ruins','Bicol cuisine'],'Photographers · Foodies · Families'],
+    ['Donsol, Sorsogon, Philippines',12.91,123.59,'luzon','nature',['Whale shark interaction','Firefly watching','Quiet beaches'],'Nature lovers · Couples · Families'],
+    ['Caramoan, Camarines Sur, Philippines',13.77,123.86,'luzon','beach',['Limestone islets','Secluded beaches','Island hopping'],'Couples · Friends · Photographers'],
+    ['Clark, Pampanga, Philippines',15.19,120.56,'luzon','city',['Pampanga food trail','Museums and parks','Duty-free shopping'],'Families · Foodies · Shoppers'],
+    ['Marinduque, Philippines',13.40,121.97,'marinduque','island',['Moriones Festival (Lent)','White beaches','Tres Reyes Islands'],'Culture lovers · Couples · Families'],
+    ['El Nido, Palawan, Philippines',11.18,119.39,'palawan','beach',['Lagoon island hopping','Nacpan Beach','Limestone cliffs'],'Couples · Friends · Photographers'],
+    ['Coron, Palawan, Philippines',11.99,120.20,'busuanga','beach',['Kayangan Lake','Wreck diving','Hot springs'],'Divers · Couples · Friends'],
+    ['Puerto Princesa, Palawan, Philippines',9.74,118.74,'palawan','city',['Underground River','Honda Bay','Baywalk seafood'],'Families · Nature lovers · Solo'],
+    ['Port Barton, Palawan, Philippines',10.40,119.18,'palawan','beach',['Quiet beaches','Island hopping','Snorkeling'],'Couples · Backpackers · Divers'],
+    ['Cebu, Philippines',10.32,123.89,'cebu','city',['Old-city heritage','Lechon','Canyon and sardine day trips'],'Foodies · Friends · Families'],
+    ['Malapascua, Cebu, Philippines',11.33,124.11,'malapascua','island',['Thresher shark diving','Quiet beaches','Island cafes'],'Divers · Couples · Backpackers'],
+    ['Bohol, Philippines',9.65,123.85,'bohol','island',['Chocolate Hills','Tarsiers','Panglao beaches'],'Families · Couples · Nature lovers'],
+    ['Boracay, Aklan, Philippines',11.97,121.92,'boracay','beach',['White Beach','Sunset sailing','Nightlife'],'Friends · Couples · Families'],
+    ['Siquijor, Philippines',9.20,123.52,'siquijor','island',['Cambugahay Falls','Salagdoong Beach','Healing traditions'],'Couples · Backpackers · Slow travelers'],
+    ['Dumaguete, Negros Oriental, Philippines',9.31,123.31,'negros','city',['Rizal Boulevard','Silliman University','Cafes and food'],'Foodies · Solo · Divers'],
+    ['Bacolod, Negros Occidental, Philippines',10.68,122.95,'negros','city',['Chicken inasal','Heritage mansions','Masskara Festival'],'Foodies · Culture lovers · Families'],
+    ['Iloilo, Philippines',10.72,122.56,'panay','city',['Old churches','La Paz batchoy','Esplanade river walk'],'Foodies · Culture lovers · Families'],
+    ['Guimaras, Philippines',10.59,122.63,'guimaras','island',['Sweet mangoes','Quiet beaches','Island hopping'],'Families · Couples · Foodies'],
+    ['Biliran, Philippines',11.55,124.47,'biliran','nature',['Waterfalls','Sambawan Island','Hot springs'],'Adventure seekers · Hikers · Couples'],
+    ['Tacloban, Leyte, Philippines',11.24,125.00,'leyte','city',['San Juanico Bridge','Sto. Nino Shrine','Recovery history'],'Culture lovers · Solo · Families'],
+    ['Romblon, Philippines',12.58,122.27,'romblon','island',['Marble crafts','Quiet beaches','Forts'],'Slow travelers · Couples · Backpackers'],
+    ['Siargao, Philippines',9.85,126.05,'siargao','island',['Cloud 9 surf','Island hopping','Rock pools'],'Surfers · Friends · Couples'],
+    ['Davao, Philippines',7.07,125.61,'mindanao','city',['Durian and fruits','Philippine Eagle Center','Samal ferry'],'Foodies · Families · Nature lovers'],
+    ['Samal Island, Davao del Norte, Philippines',7.07,125.72,'samal','island',['Beach resorts','Hagimit Falls','Island caves'],'Families · Friends · Couples'],
+    ['Camiguin, Philippines',9.17,124.72,'camiguin','island',['Sunken Cemetery','Hot and cold springs','White Island sandbar'],'Couples · Families · Backpackers'],
+    ['Cagayan de Oro, Philippines',8.48,124.65,'mindanao','city',['White-water rafting','Cagayan River','City food'],'Adventure seekers · Friends · Families'],
+    ['Zamboanga City, Philippines',6.91,122.08,'mindanao','city',['Fort Pilar','Pink-sand Santa Cruz Island','Chavacano food'],'Culture lovers · Foodies · Photographers'],
+    ['Surigao del Sur, Philippines',9.08,126.20,'mindanao','nature',['Enchanted River','Tinuy-an Falls','Coastal beaches'],'Adventure seekers · Photographers · Backpackers'],
+    ['Dinagat Islands, Philippines',10.13,125.60,'dinagat','island',['Quiet islands','Cave pools','Beaches'],'Slow travelers · Adventure seekers · Backpackers'],
+    // extras
+    ['Subic Bay',14.82,120.28,'luzon','beach',['Zoobic Safari','Ocean Adventure','Beaches and dining'],'Families · Friends · Divers'],
+    ['Taal Heritage Town',13.88,120.92,'luzon','culture',['Taal Basilica','Ancestral houses','Embroidery shops'],'Culture lovers · Couples · Families'],
+    ['Anilao, Batangas',13.76,120.91,'luzon','beach',['Top diving sites','Macro photography','Small resorts'],'Divers · Photographers · Friends'],
+    ['Laiya, San Juan, Batangas',13.65,121.40,'luzon','beach',['White-sand beaches','Camping','Island hopping'],'Friends · Families · Campers'],
+    ['Hundred Islands, Alaminos',16.20,119.98,'luzon','island',['Island hopping','Kayaking','Cliff jumping'],'Families · Friends · Adventure seekers'],
+    ['Mt. Pinatubo Crater',15.13,120.35,'luzon','nature',['4x4 ride','Crater lake trek','Lunar landscape'],'Adventure seekers · Hikers · Photographers',1],
+    ['Laoag and Paoay',18.10,120.55,'luzon','culture',['Paoay Church','Sand dunes','Ilocano food'],'Culture lovers · Foodies · Couples'],
+    ['Cape Bojeador and Burgos',18.50,120.60,'luzon','culture',['Cape Bojeador Lighthouse','Coastal viewpoints','Burgos windmills'],'Photographers · Couples · Road-trippers'],
+    ['Currimao Beach',18.02,120.48,'luzon','beach',['Quiet shoreline','Rock formations','Resort stays'],'Couples · Families · Slow travelers'],
+    ['Agoo, La Union',16.32,120.37,'luzon','culture',['Agoo Basilica','Museum','Local markets'],'Culture lovers · Families · Solo'],
+    ['Batad Rice Terraces',16.95,121.10,'luzon','nature',['Amphitheater terraces','Tappiya Falls trek','Village homestays'],'Hikers · Photographers · Backpackers',1],
+    ['Kiangan, Ifugao',16.78,121.10,'luzon','culture',['Ifugao Shrine','Nagacadan Terraces','Weaving villages'],'Culture lovers · Photographers · Hikers',1],
+    ['Mt. Pulag',16.59,120.90,'luzon','nature',['Sea-of-clouds sunrise','Trekking trails','Cool alpine air'],'Hikers · Adventure seekers · Photographers',1],
+    ['Ditumabo Mother Falls',15.70,121.58,'luzon','nature',['Tall waterfall','Short jungle trek','Swimming pool'],'Families · Friends · Hikers'],
+    ['Dingalan, Aurora',15.39,121.40,'luzon','beach',['Quiet coastline','Lighthouse','Sunrise views'],'Couples · Slow travelers · Photographers'],
+    ['Cagsawa Ruins',13.16,123.70,'luzon','culture',['Bell tower with Mayon backdrop','Local souvenirs','Easy sunrise photos'],'Photographers · Families · Culture lovers'],
+    ['Bulusan Lake',12.77,124.05,'luzon','nature',['Kayaking','Volcano forest','Birdwatching'],'Nature lovers · Families · Photographers'],
+    ['Naga City',13.62,123.18,'luzon','city',['Penafrancia Shrine','Bicolano food','Mt. Isarog views'],'Foodies · Culture lovers · Solo'],
+    ['Gubat, Sorsogon',12.92,124.12,'luzon','beach',['Rizal Beach','Surf spots','Local seafood'],'Friends · Families · Surfers'],
+    ['Ticao Island',12.65,123.70,'ticao','island',['Manta Bowl diving','Quiet villages','Beaches'],'Divers · Slow travelers · Adventure seekers'],
+    ['Verde Island',13.55,121.07,'verde','island',['Top dive site','Marine life','Fishing villages'],'Divers · Photographers · Slow travelers'],
+    ['Taytay, Palawan',10.82,119.52,'palawan','culture',['Fort Santa Isabel','Quiet beaches','Lake Danao'],'Culture lovers · Couples · Slow travelers'],
+    ['San Vicente (Long Beach)',10.52,119.28,'palawan','beach',['14-km Long Beach','Quiet resorts','Sunset walks'],'Couples · Families · Slow travelers'],
+    ['Honda Bay',9.85,118.78,'palawan','island',['Island hopping','Starfish Island','Snorkeling'],'Families · Friends · Couples'],
+    ['Moalboal',9.94,123.40,'cebu','beach',['Sardine run','Snorkeling','Beach cafes'],'Divers · Friends · Backpackers'],
+    ['Oslob and Tumalog Falls',9.46,123.38,'cebu','nature',['Whale shark watching','Tumalog Falls','Coastal views'],'Families · Nature lovers · Friends'],
+    ['Kawasan Falls, Badian',9.80,123.37,'cebu','nature',['Canyoneering','Turquoise falls','Bamboo rafts'],'Adventure seekers · Friends · Families'],
+    ['Bantayan Island',11.25,123.72,'bantayan','island',['White-sand beaches','Fresh seafood','Island bike rides'],'Couples · Families · Slow travelers'],
+    ['Camotes Islands',10.63,124.42,'camotes','island',['Lagoons','Cave pools','Quiet beaches'],'Couples · Families · Backpackers'],
+    ['Mactan Island',10.30,124.00,'cebu','beach',['Beach resorts','Diving','Handicraft shopping'],'Families · Couples · Divers'],
+    ['Anda, Bohol',9.74,124.57,'bohol','beach',['Quinale Beach','Cave pools','Quiet resorts'],'Couples · Slow travelers · Families'],
+    ['Apo Island',9.07,123.27,'apo','island',['Sea turtles','Snorkeling','Marine sanctuary'],'Divers · Snorkelers · Nature lovers'],
+    ['Dauin',9.19,123.27,'negros','beach',['Muck diving','Black-sand beaches','Beach cafes'],'Divers · Photographers · Couples'],
+    ['Casaroro Falls, Valencia',9.29,123.24,'negros','nature',['Casaroro Falls','Cool mountain air','Short trek'],'Hikers · Families · Couples'],
+    ['Twin Lakes of Balinsasayao',9.36,123.18,'negros','nature',['Two crater lakes','Forest trails','Birdwatching'],'Nature lovers · Hikers · Photographers'],
+    ['Manjuyod Sandbar',9.62,123.14,'negros','beach',['White sandbar','Island resort stays','Dolphin watching'],'Couples · Families · Friends'],
+    ['Silay City',10.80,122.97,'negros','culture',['Ancestral mansions','Art deco houses','Heritage cafes'],'Culture lovers · Photographers · Couples'],
+    ['Mambukal, Murcia',10.51,123.10,'negros','nature',['Seven falls','Hot springs','Forest walks'],'Families · Hikers · Friends'],
+    ['The Ruins, Talisay',10.74,122.96,'negros','culture',['Mansion ruins','Sunset photos','Cafe on site'],'Couples · Photographers · Culture lovers'],
+    ['Kalibo',11.70,122.37,'panay','city',['Ati-Atihan Festival','Pina fabric','Local markets'],'Culture lovers · Shoppers · Families'],
+    ['Miagao Church',10.64,122.23,'panay','culture',['UNESCO World Heritage church','Carved facade','Countryside drive'],'Culture lovers · Photographers · Families'],
+    ['Gigantes Islands',11.58,123.35,'gigantes','island',['Fresh scallops','Tangke saltwater lagoon','Sandbars'],'Adventure seekers · Backpackers · Foodies'],
+    ['Sibuyan Island',12.43,122.58,'sibuyan','nature',['Mt. Guiting-Guiting','Cantingas River','Quiet beaches'],'Hikers · Adventure seekers · Slow travelers'],
+    ['Tablas Island',12.40,121.99,'tablas','island',['Quiet beaches','Local markets','Coastal drives'],'Slow travelers · Couples · Backpackers'],
+    ['Eden Nature Park and Philippine Eagle Center',7.17,125.40,'mindanao','nature',['Philippine Eagle Center','Zipline','Cool gardens'],'Families · Nature lovers · Couples'],
+    ['Mati, Davao Oriental',6.95,126.22,'mindanao','beach',['Dahican Beach','Skimboarding','Giant Mati sea turtles'],'Friends · Surfers · Adventure seekers'],
+    ['Mt. Apo',6.99,125.27,'mindanao','nature',['Highest peak in the country','Multi-day trek','Hot springs'],'Hikers · Adventure seekers',1],
+    ['Dahilayan Adventure Park',8.20,124.85,'mindanao','nature',['Zipline','Mountain coaster','Cool highland air'],'Families · Friends · Adventure seekers'],
+    ['Iligan and Maria Cristina Falls',8.18,124.19,'mindanao','city',['Maria Cristina Falls','Local markets','Tinago Falls nearby'],'Families · Nature lovers · Photographers'],
+    ['Santa Cruz Island, Zamboanga',6.88,122.04,'santacruz','island',['Pink-sand beach','Clear water','Mangrove walks'],'Families · Photographers · Couples'],
+    ['Merloquet Falls',7.10,122.00,'mindanao','nature',['Two-tier waterfall','Forest walk','Swimming pool'],'Families · Friends · Hikers'],
+    ['Enchanted River, Hinatuan',8.93,126.33,'mindanao','nature',['Deep blue spring','Swimming','Local lunch'],'Photographers · Families · Friends'],
+    ['Tinuy-an Falls, Bislig',8.18,126.15,'mindanao','nature',['Wide curtain waterfall','Bamboo rafts','Rainforest'],'Families · Photographers · Hikers'],
+    ['Britania Islands, San Agustin',8.93,126.18,'mindanao','island',['Karst islets','Snorkeling','Sandbars'],'Backpackers · Adventure seekers · Photographers'],
+    ['Pasonanca Natural Park',6.99,122.06,'mindanao','nature',['Treehouse and gardens','Butterfly garden','Cool forest air'],'Families · Nature lovers · Solo'],
+    ['Surigao City',9.78,125.49,'mindanao','city',['Gateway to the islands','Seafood','Heritage walks'],'Solo · Backpackers · Families'],
+    ['Bucas Grande and Sohoton Cove',9.62,125.97,'bucas','island',['Cave lagoons','Jellyfish snorkeling','Limestone islets'],'Adventure seekers · Photographers · Couples'],
+    ['Ormoc and Lake Danao',11.05,124.60,'leyte','nature',['Lake Danao','Hot springs','Forest trails'],'Families · Nature lovers · Solo'],
+    ['Kalanggaman Island',11.17,124.35,'kalanggaman','island',['Sandbar','Clear water','Day-trip picnics'],'Friends · Couples · Photographers'],
+    ['Sohoton Natural Bridge, Basey',11.28,125.07,'leyte','nature',['Natural bridge','Caves','River boat ride'],'Adventure seekers · Photographers · Hikers']
+  ];
+  rows.forEach(function(r){ SPOTS[r[0]] = {name:r[0].replace(', Philippines',''), lat:r[1], lng:r[2], isle:r[3], type:r[4], hl:r[5], who:r[6], mtn:!!r[7], key:r[0]}; });
+})();
+var TYPE_LABEL = {city:'City', beach:'Beach', nature:'Nature', culture:'Culture', island:'Island'};
+var TYPE_CAT = {city:'sight', beach:'nature', nature:'nature', culture:'culture', island:'nature'};
+function geoKm(a, b){
+  var R = 6371, rad = Math.PI / 180;
+  var dLat = (b.lat - a.lat) * rad, dLng = (b.lng - a.lng) * rad;
+  var x = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(a.lat * rad) * Math.cos(b.lat * rad) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+  return 2 * R * Math.asin(Math.sqrt(x));
+}
+var SEA = {};
+['luzon|mindoro','luzon|marinduque','mindoro|verde','luzon|verde','luzon|ticao','panay|guimaras','negros|guimaras','panay|negros','negros|siquijor','negros|apo','cebu|bantayan','cebu|camotes','cebu|malapascua','bantayan|malapascua','cebu|bohol','mindanao|camiguin','mindanao|samal','mindanao|dinagat','mindanao|bucas','mindanao|siargao','dinagat|siargao','dinagat|bucas','bucas|siargao','leyte|biliran','leyte|kalanggaman','leyte|camotes','panay|boracay','panay|gigantes','romblon|tablas','romblon|sibuyan','tablas|sibuyan','tablas|marinduque','mindanao|santacruz','bohol|siquijor'].forEach(function(p){ var q = p.split('|'); SEA[q[0] + '|' + q[1]] = SEA[q[1] + '|' + q[0]] = 1; });
+function travelHours(a, b){
+  var km = geoKm(a, b);
+  if (a.isle !== b.isle){
+    if (SEA[a.isle + '|' + b.isle] && km <= 120) return {h:km * 1.2 / 35 + 0.75, mode:'incl. boat or ferry'};
+    if (km > 160) return {h:99, mode:''};
+    return {h:km * 1.2 / 30 + 2, mode:'multi-leg boat or flight', loose:true};
+  }
+  if (a.mtn || b.mtn) return {h:km * 2.2 / 22, mode:'by road, mountain roads'};
+  return {h:km * 1.4 / 45, mode:'by road'};
+}
+function fmtTime(h){
+  if (h < 0.9) return Math.max(15, Math.round(h * 4) * 15) + ' min';
+  return (Math.round(h * 2) / 2) + ' h';
+}
+function whyText(o, c, t){
+  var on = o.name.split(',')[0], pick;
+  if (c.type === o.type) pick = 'A similar ' + TYPE_LABEL[c.type].toLowerCase() + ' stop, handy if ' + on + ' is crowded or fully booked.';
+  else if (c.type === 'nature') pick = 'A nature day that balances ' + on + ' with fresh air, trails and big views.';
+  else if (c.type === 'beach') pick = 'Pairs ' + on + ' with a slow beach break for swimming and sunsets.';
+  else if (c.type === 'culture') pick = 'Adds history and local color to a trip centered on ' + on + '.';
+  else if (c.type === 'city') pick = 'A city stop for food, markets and nightlife after time in ' + on + '.';
+  else pick = 'An island getaway that stretches the trip beyond ' + on + '.';
+  var tail = t.h <= 1.25 ? ' Close enough for an easy day trip.' : t.h <= 2.25 ? ' Works as a full-day side trip.' : ' Best with an overnight stay.';
+  return pick + tail;
+}
+function nearbyFor(key){
+  var o = SPOTS[key]; if (!o) return null;
+  var all = Object.keys(SPOTS).filter(function(k){ return k !== key; }).map(function(k){
+    var c = SPOTS[k], t = travelHours(o, c);
+    return {c:c, t:t};
+  }).sort(function(a, b){ return a.t.h - b.t.h; });
+  var near = all.filter(function(x){ return x.t.h <= 3 && !x.t.loose; });
+  var pool = near.slice();
+  if (pool.length < 3) all.filter(function(x){ return near.indexOf(x) < 0 && x.t.h <= 8; }).forEach(function(x){ if (pool.length < 3) pool.push(x); });
+  var chosen = [], seen = {};
+  pool.forEach(function(x){ if (!seen[x.c.type] && chosen.length < 5){ seen[x.c.type] = 1; chosen.push(x); } });
+  pool.forEach(function(x){ if (chosen.indexOf(x) < 0 && chosen.length < 5) chosen.push(x); });
+  chosen.sort(function(a, b){ return a.t.h - b.t.h; });
+  return {origin:o, items:chosen.map(function(x){
+    return {spot:x.c, time:fmtTime(x.t.h), mode:x.t.mode, why:whyText(o, x.c, x.t), far:x.t.h > 3 || !!x.t.loose};
+  })};
+}
+function addSpotStop(spot, time){
+  mutate(function(){
+    var d = activeDay(); if (!d) return;
+    d.items.push(normItem({time:'', title:'Day trip: ' + spot.name, area:spot.name, category:TYPE_CAT[spot.type], duration:'Half day', cost:0, note:spot.hl.slice(0, 2).join(', ') + '. About ' + time + ' away.'}));
+    sortItems(d);
+    notice = 'Added "' + spot.name + '" to Day ' + d.day + ' of your plan.';
+  });
+  setTimeout(function(){ notice = ''; if (tab === 'recs') render(); }, 3500);
+}
+
 /* ---------- plan state ---------- */
 var sample = null;
 var view = null;
@@ -974,17 +1145,37 @@ function renderRecs(out){
     })));
     if (notice) wrap.append(h('p',{class:'msg',role:'status',text:notice}));
   } else {
-    wrap.append(h('div',{class:'recs-h'}, h('div',null, h('h2',{text:'Trips for ' + name}), h('p',{class:'hint',text:'We have no ready-made stops for ' + name + ' yet. Plan it yourself in My plan, or look at these places that fit you.'}))));
+    wrap.append(h('div',{class:'recs-h'}, h('div',null, h('h2',{text:'Trips for ' + name}), h('p',{class:'hint',text:'We have no ready-made stops for ' + name + ' yet. Plan it yourself in My plan, or build around these nearby places.'}))));
   }
-  var others = recommend(f).filter(function(r){ return r.key !== key; }).slice(0, 3);
-  wrap.append(h('h3',{class:'recs-sub',text:P ? 'You might also like' : 'Places that fit you'}));
-  wrap.append(h('div',{class:'recs-grid'}, others.map(function(r){
-    var oname = r.key.replace(', Philippines','');
-    return h('button',{class:'rec pick',type:'button',onclick:function(){ $('destSel').value = r.key; syncMeta(); render(); }},
-      h('h3',{text:oname}),
-      h('span',{class:'hint',text:(r.why[0] || r.P.blurb)}),
-      h('span',{class:'linkbtn',text:'Show trips for ' + oname}));
-  })));
+  var nb = P ? null : nearbyFor(key);
+  if (nb){
+    wrap.append(h('h3',{class:'recs-sub',text:'Trips You Might Also Like'}));
+    wrap.append(h('p',{class:'hint',text:'Places near ' + name + ', with travel times estimated from distance. Check bus and ferry schedules before you go.'}));
+    wrap.append(h('div',{class:'recs-grid'}, nb.items.map(function(it){
+      var sp = it.spot, selectable = knownDest(sp.key);
+      return h('article',{class:'rec'},
+        h('div',{class:'rec-top'},
+          h('h3',{text:sp.name}),
+          h('span',{class:'tt',text:'≈ ' + it.time})),
+        h('div',{class:'rec-meta',text:TYPE_LABEL[sp.type] + ' · ' + it.mode + (it.far ? ' · longer trip' : '')}),
+        h('p',{class:'why-text',text:it.why}),
+        h('ul',{class:'hl'}, sp.hl.map(function(t){ return h('li',{text:t}); })),
+        h('div',{class:'fit'}, sp.who.split(' · ').map(function(t){ return h('span',{text:t}); })),
+        selectable ? h('button',{class:'btn small ghost',type:'button',text:'Show trips for ' + sp.name.split(',')[0],onclick:function(){ $('destSel').value = sp.key; syncMeta(); render(); }})
+                   : h('button',{class:'btn small ghost',type:'button',text:'Add as a day trip',onclick:function(){ addSpotStop(sp, it.time); }}));
+    })));
+    if (notice) wrap.append(h('p',{class:'msg',role:'status',text:notice}));
+  } else {
+    var others = recommend(f).filter(function(r){ return r.key !== key; }).slice(0, 3);
+    wrap.append(h('h3',{class:'recs-sub',text:'Trips You Might Also Like'}));
+    wrap.append(h('div',{class:'recs-grid'}, others.map(function(r){
+      var oname = r.key.replace(', Philippines','');
+      return h('button',{class:'rec pick',type:'button',onclick:function(){ $('destSel').value = r.key; syncMeta(); render(); }},
+        h('h3',{text:oname}),
+        h('span',{class:'hint',text:(r.why[0] || r.P.blurb)}),
+        h('span',{class:'linkbtn',text:'Show trips for ' + oname}));
+    })));
+  }
   out.append(wrap);
 }
 
@@ -1163,8 +1354,7 @@ $('stop').addEventListener('click', function(){ if (ctl) ctl.abort(); });
     var word = h('span',{class:'wv-word','aria-hidden':'true'});
     w.split('').forEach(function(ch){
       var l = h('span',{class:'wv-ch',text:ch});
-      l.style.setProperty('--d', (-n * 0.11).toFixed(2) + 's');
-      l.style.setProperty('--y', (Math.sin(n * 0.6) * 3).toFixed(1) + 'px');
+            l.style.setProperty('--y', (Math.sin(n * 0.5) * 4).toFixed(1) + 'px');
       word.append(l); n++;
     });
     el.append(word); if (wi < text.split(' ').length - 1) el.append(' ');
