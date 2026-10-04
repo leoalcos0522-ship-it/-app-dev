@@ -299,6 +299,7 @@ input[type=text].themein:hover{border-bottom-color:var(--dc)}
 .rec .btn.ghost{justify-self:start}
 .wavetext{flex-direction:column;flex-wrap:nowrap;align-items:flex-start;justify-content:flex-start;gap:10px;min-height:104px}
 .wavetext .tagline{width:100%;max-width:none}
+.wavetext .meaning{align-self:flex-end}
 @media (min-width:640px){.wavetext .tagline{white-space:nowrap}}
 </style>
 
@@ -1360,11 +1361,15 @@ $('stop').addEventListener('click', function(){ if (ctl) ctl.abort(); });
   });
   /* same shape as the band's top edge: a 160px-period sine, crest at x = 40px, 6px high */
   var band = el.closest('.wavetext');
+  function textWidth(){ return letters[letters.length - 1].getBoundingClientRect().right - letters[0].getBoundingClientRect().left; }
   function fit(){
-    el.style.fontSize = '';
+    el.style.fontSize = ''; el.style.letterSpacing = '';
     if (window.innerWidth < 640) return;
-    var size = 17; el.style.fontSize = size + 'px';
-    while (size > 9 && el.scrollWidth > el.clientWidth + 1){ size -= 0.5; el.style.fontSize = size + 'px'; }
+    var size = 13; el.style.fontSize = size + 'px';
+    while (size > 9 && textWidth() > el.clientWidth){ size -= 0.5; el.style.fontSize = size + 'px'; }
+    var extra = el.clientWidth - textWidth();
+    if (extra > 0) el.style.letterSpacing = Math.min(8, extra / Math.max(1, text.length - 1)).toFixed(2) + 'px';
+    if (textWidth() > el.clientWidth) el.style.letterSpacing = '';
   }
   function layoutWave(){
     fit();
