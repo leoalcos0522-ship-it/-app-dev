@@ -69,22 +69,23 @@ code{font:12.5px var(--mono);background:var(--code);padding:1px 5px;border-radiu
 
   <section>
     <h2>Frame hierarchy (is-a and part-of)</h2>
-    <p class="note"><b>is-a</b> links pass slots and defaults down to specializations. <b>part-of</b> links show how a trip is assembled.</p>
-    <div class="tree" role="img" aria-label="Frame hierarchy"><b>Thing</b>
-├─ <b>System</b> ............................. LakbayLokal
-├─ <b>Traveler Profile</b> ................... the form on the left
-├─ <b>Place</b>
-│   ├─ <b>Destination</b> .................... one of 41 Philippine destinations in the list
-│   │   ├─ <b>Curated Destination</b> ......... 12 with built-in day ideas (Cebu, Bohol, El Nido ...)
-│   │   └─ <b>Uncurated Destination</b> ....... 29 with nearby-trip suggestions only
-│   └─ <b>Nearby Spot</b> .................... town, beach or nature stop around a destination
-├─ <b>Recommendation</b>
-│   ├─ <b>Destination Match</b>
-│   └─ <b>Nearby Trip</b>
-└─ <b>Trip</b>  <em>(my plan)</em>
-    └─ part-of ─ <b>Day</b>  (1 to 14)
-                    └─ part-of ─ <b>Stop</b>
-                                    <em>category: food | sight | nature | culture | night | rest | transport | shop | stay</em></div>
+    <p class="note">is-a: a frame inherits its parent's slots and defaults. part-of: the frame is a component of another.</p>
+    <div class="card"><div class="scroll"><table class="tbl" style="margin-top:0">
+      <tr><th>Frame</th><th>is-a (parent)</th><th>part-of</th><th>What it is</th></tr>
+      <tr><td>System</td><td>Thing</td><td>—</td><td>LakbayLokal itself</td></tr>
+      <tr><td>Traveler Profile</td><td>Thing</td><td>System</td><td>The form on the left</td></tr>
+      <tr><td>Place</td><td>Thing</td><td>—</td><td>Anything with a name and a map position</td></tr>
+      <tr><td>Destination</td><td>Place</td><td>System</td><td>One of 41 Philippine destinations in the list</td></tr>
+      <tr><td>Curated Destination</td><td>Destination</td><td>System</td><td>12 destinations with built-in day ideas (Cebu, Bohol, El Nido ...)</td></tr>
+      <tr><td>Uncurated Destination</td><td>Destination</td><td>System</td><td>29 destinations that only get nearby-trip suggestions</td></tr>
+      <tr><td>Nearby Spot</td><td>Place</td><td>System</td><td>A town, beach or nature stop around a destination</td></tr>
+      <tr><td>Recommendation</td><td>Thing</td><td>System</td><td>Something the system suggests</td></tr>
+      <tr><td>Destination Match</td><td>Recommendation</td><td>System</td><td>A scored destination for this traveler</td></tr>
+      <tr><td>Nearby Trip</td><td>Recommendation</td><td>System</td><td>A "Trips You Might Also Like" card</td></tr>
+      <tr><td>Trip</td><td>Thing</td><td>System</td><td>The user's plan ("My plan" tab)</td></tr>
+      <tr><td>Day</td><td>Thing</td><td>Trip</td><td>One day of a trip (1 to 14)</td></tr>
+      <tr><td>Stop</td><td>Thing</td><td>Day</td><td>One activity, meal or ride. Category: food, sight, nature, culture, night, rest, transport, shop, stay</td></tr>
+    </table></div></div>
   </section>
 
   <section class="frame">
@@ -224,38 +225,51 @@ code{font:12.5px var(--mono);background:var(--code);padding:1px 5px;border-radiu
   <section>
     <h2>Worked instance</h2>
     <p class="note">One traveler, filled in.</p>
-    <div class="inst"><b>Traveler Profile</b> #t1
-  destination: Cebu       days: 3          month: November
-  party: Couple           travelers: 2     daily_budget: 3,500 PHP
-  pace: Balanced          interests: { Food &amp; markets, History, Nature &amp; hikes }
-
-<b>Destination</b> Cebu <em>(Curated)</em>
-  region: Visayas         type: city        crowd_level: 2
-  typical_cost_per_day: 3,000          lodging_per_night: 900
-  best_months: Jan to May              avoid_months: Sep, Oct
-  day_ideas: [ "Old Cebu on foot", "Canyon water and sardines", "Hills, gardens and seafood" ]
-
-<b>Destination Match</b> #m1  (t1, Cebu)
-  interest_fit: +9    budget_fit: +3    season_fit: 0 (November is neither best nor avoid)
-  reasons: ✓ Matches Food &amp; markets, History, Nature &amp; hikes   ✓ Fits your 3,500 PHP daily budget
-
-<b>Trip</b> #p1  title: "Cebu in 3 days"
-  Day 1 "Old Cebu on foot"           cost: 510 + lodging 900 = 1,410      over_budget: false
-  Day 2 "Canyon water and sardines"  cost: 3,650 + lodging 900 = 4,550    over_budget: true
-  Day 3 "Hills, gardens and seafood" cost: 1,850 (no lodging, last day)   over_budget: false
-  cost_per_person: 7,810    budget_left: 10,500 − 7,810 = 2,690</div>
+    <div class="card"><div class="scroll"><table class="tbl" style="margin-top:0">
+      <tr><th colspan="2">Traveler Profile #t1</th></tr>
+      <tr><td>destination</td><td>Cebu</td></tr>
+      <tr><td>days · month</td><td>3 · November</td></tr>
+      <tr><td>party · travelers</td><td>Couple · 2</td></tr>
+      <tr><td>daily_budget</td><td>3,500 PHP per person</td></tr>
+      <tr><td>pace</td><td>Balanced (6 stops per day)</td></tr>
+      <tr><td>interests</td><td>Food &amp; markets, History, Nature &amp; hikes</td></tr>
+    </table></div></div>
+    <div class="card" style="margin-top:12px"><div class="scroll"><table class="tbl" style="margin-top:0">
+      <tr><th colspan="2">Destination: Cebu (Curated)</th></tr>
+      <tr><td>region · type · crowd_level</td><td>Visayas · city · 2</td></tr>
+      <tr><td>typical_cost_per_day</td><td>3,000 PHP</td></tr>
+      <tr><td>lodging_per_night</td><td>900 PHP</td></tr>
+      <tr><td>best_months · avoid_months</td><td>January to May · September, October</td></tr>
+      <tr><td>day_ideas</td><td>Old Cebu on foot · Canyon water and sardines · Hills, gardens and seafood</td></tr>
+    </table></div></div>
+    <div class="card" style="margin-top:12px"><div class="scroll"><table class="tbl" style="margin-top:0">
+      <tr><th>Destination Match #m1 · rule</th><th>Reading</th><th>Score</th></tr>
+      <tr><td>interest_fit</td><td>Cebu's tags match all 3 chosen interests (3 × 3)</td><td>+9</td></tr>
+      <tr><td>budget_fit</td><td>3,500 is at least the typical 3,000 per day</td><td>+3</td></tr>
+      <tr><td>season_fit</td><td>November is neither a best nor an avoid month</td><td>0</td></tr>
+      <tr><td>quiet_bonus</td><td>"Quiet/less-crowded places" was not chosen</td><td>0</td></tr>
+      <tr><td><b>Total</b></td><td>✓ Matches the interests · ✓ Fits the daily budget</td><td><b>+12</b></td></tr>
+    </table></div></div>
+    <div class="card" style="margin-top:12px"><div class="scroll"><table class="tbl" style="margin-top:0">
+      <tr><th>Trip #p1 · "Cebu in 3 days"</th><th>Stops</th><th>Lodging</th><th>Day cost</th><th>Over budget?</th></tr>
+      <tr><td>Day 1 · Old Cebu on foot</td><td>510</td><td>900</td><td>1,410</td><td>No</td></tr>
+      <tr><td>Day 2 · Canyon water and sardines</td><td>3,650</td><td>900</td><td>4,550</td><td>Yes (by 1,050)</td></tr>
+      <tr><td>Day 3 · Hills, gardens and seafood</td><td>1,850</td><td>— (last day)</td><td>1,850</td><td>No</td></tr>
+      <tr><td><b>Trip total per person</b></td><td></td><td></td><td><b>7,810</b></td><td>Budget left: 10,500 − 7,810 = 2,690</td></tr>
+    </table></div></div>
   </section>
 
   <section>
     <h2>Inference trace</h2>
-    <div class="card"><ol class="trace">
-      <li>Read the Traveler Profile slots from the form.</li>
-      <li>Look up the Destination frame. If it is Curated, show its day ideas and a Destination Match. If not, fire <code>nearby</code>.</li>
-      <li>Score every Curated Destination (interest, budget, season, quiet) and list the top three.</li>
-      <li>On "Build this trip" or "Add to my plan", copy Day frames from the Destination into the Trip and fire the <i>if-added</i> sort.</li>
-      <li>Compute Day.cost and Trip.budget_left on demand. Mark any Day that exceeds the daily budget.</li>
-      <li>The traveler edits any slot by hand. The <i>if-changed</i> demons refresh everything and save.</li>
-    </ol></div>
+    <div class="card"><div class="scroll"><table class="tbl" style="margin-top:0">
+      <tr><th>Step</th><th>What the system does</th><th>Frames and slots used</th></tr>
+      <tr><td>1</td><td>Read the form</td><td>Traveler Profile (all slots)</td></tr>
+      <tr><td>2</td><td>Look up the chosen destination. If curated, show its day ideas. If not, find nearby spots.</td><td>Destination.day_ideas · Destination.nearby</td></tr>
+      <tr><td>3</td><td>Score every curated destination and list the top three</td><td>Destination Match (interest, budget, season, quiet)</td></tr>
+      <tr><td>4</td><td>On "Build this trip" or "Add to my plan", copy days into the trip and sort stops by time</td><td>Trip.days · Day.stops (if-added)</td></tr>
+      <tr><td>5</td><td>Work out each day's cost, the trip total and the budget left. Flag days over budget.</td><td>Day.cost · Day.over_budget · Trip.budget_left</td></tr>
+      <tr><td>6</td><td>The traveler edits anything. The system refreshes everything and saves.</td><td>if-changed procedures · System.storage</td></tr>
+    </table></div></div>
   </section>
 </div>
 </body>
