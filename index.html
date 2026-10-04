@@ -278,6 +278,26 @@ input[type=text].themein:hover{border-bottom-color:var(--dc)}
   @keyframes drift{to{-webkit-mask-position:-120px 0;mask-position:-120px 0}}
   @keyframes drift2{from{-webkit-mask-position:60px 0;mask-position:60px 0}to{-webkit-mask-position:180px 0;mask-position:180px 0}}
 }
+
+.wv-word{display:inline-block;white-space:nowrap}
+.wv-ch{display:inline-block;transform:translateY(var(--y,0))}
+@media (prefers-reduced-motion:no-preference){.wv-ch{transform:none;animation:wv 2.4s ease-in-out infinite;animation-delay:var(--d,0s)}@keyframes wv{0%,100%{transform:translateY(-3px)}50%{transform:translateY(3px)}}}
+.wavetext .tagline{padding-block:4px}
+.mtabs{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surface)}
+.mtab{font:700 14px/1.2 var(--font-body);padding:12px 10px;border:0;background:transparent;color:var(--fg);cursor:pointer}
+.mtab+.mtab{border-left:1px solid var(--line)}
+.mtab[aria-selected="true"]{background:var(--blue);color:var(--blue-ink)}
+.recs{gap:18px}
+.recs-h h2{font:700 1.5rem/1.15 var(--font-display);letter-spacing:-.02em}
+.recs-sub{font:500 11px/1.2 var(--font-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+.rec.featured{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;justify-content:space-between;border-color:var(--blue);background:var(--surface)}
+.rec.pick{text-align:left;cursor:pointer;font:inherit;color:inherit}
+.rec.pick:hover{border-color:var(--blue)}
+.fit{display:flex;flex-wrap:wrap;gap:4px}
+.fit span{font-size:11.5px;padding:2px 8px;border-radius:999px;background:var(--yellow);color:var(--yellow-ink)}
+.hl{margin:0;padding-left:18px;font-size:13px;color:var(--muted)}
+.rec-foot{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin-top:4px}
+.rec-foot .btn{margin:0}
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
@@ -398,7 +418,7 @@ input[type=text].themein:hover{border-bottom-color:var(--dc)}
       <div class="field">
         <span class="lbl" id="int-l">Interests</span>
         <div class="chips" id="interests" role="group" aria-labelledby="int-l"></div>
-        <span class="hint">Pick what you enjoy, then ask for recommendations.</span>
+        <span class="hint">Recommendations update as you choose.</span>
       </div>
 
       <details class="more" id="aiOpts" hidden>
@@ -410,8 +430,7 @@ input[type=text].themein:hover{border-bottom-color:var(--dc)}
       </details>
 
       <div class="actions">
-        <button class="btn" type="submit" id="rec">Recommend trips for me</button>
-        <button class="btn ghost" type="button" id="go">Start a new plan</button>
+        <button class="btn" type="button" id="go">Start a new plan</button>
         <button class="btn ghost" type="button" id="ai" hidden>Suggest with Claude</button>
         <button class="btn ghost" type="button" id="stop" hidden>Stop</button>
       </div>
@@ -781,7 +800,7 @@ function recommend(f){
 /* ---------- plan state ---------- */
 var sample = null;
 var view = null;
-var recs = null;
+var tab = 'recs';
 var busy = false, ctl = null, pending = null, notice = '', showCopy = '', editing = null, adding = null;
 
 function blankTrip(){ return {title:'', summary:'', bestTime:'', tips:[]}; }
@@ -880,6 +899,95 @@ function renderDay(d, meta, total){
 }
 function fact(label, value){ return h('div',{class:'fact'}, h('dt',{text:label}), h('dd',{text:value})); }
 
+/* ---------- recommendations: always shown for the chosen destination ---------- */
+var INT2CAT = {'Food & markets':['food'],'Beaches & islands':['nature'],'History':['culture','sight'],'Nature & hikes':['nature'],'Culture & art':['culture'],'Nightlife':['night'],'Shopping':['shop'],'Adventure sports':['nature'],'Wellness':['rest'],'Photography':['sight','nature'],'Local experiences':['food','culture']};
+function ideaFit(day, interests){
+  return interests.filter(function(t){
+    var cats = INT2CAT[t] || [];
+    return day.items.some(function(i){ return cats.indexOf(i.category) > -1; });
+  });
+}
+function buildTrip(key){
+  var P = PLACES[key], name = key.replace(', Philippines','');
+  if (hasStops() && !confirm('Replace your current plan with a ' + name + ' trip?')) return;
+  var f = readForm(); f.dest = key; setForm(f); f = readForm();
+  newPlan(f); view.days = buildFromPlace(key, f);
+  view.trip.title = name + ' in ' + f.days + ' day' + (f.days === 1 ? '' : 's');
+  view.trip.bestTime = 'Best months: ' + monthsText(P.best) + '.';
+  view.trip.summary = P.blurb + ' Edit anything to make it yours.';
+  tab = 'plan'; touch(); render();
+  window.scrollTo({top: $('out').getBoundingClientRect().top + window.pageYOffset - 12, behavior:'smooth'});
+}
+function addIdea(key, idx){
+  var P = PLACES[key], src = P.days[idx], f = view.meta;
+  mutate(function(){
+    var d = activeDay();
+    if (!d || d.items.length){
+      if (view.days.length >= 14) return;
+      view.days.push({day:view.days.length + 1, theme:'', items:[]}); d = view.days[view.days.length - 1];
+    }
+    d.theme = src.theme;
+    d.items = src.items.map(function(o){ return Object.assign({}, o); });
+    view.active = d.day; view.meta.days = view.days.length; $('days').value = String(Math.min(10, view.days.length));
+    notice = 'Added "' + src.theme + '" as Day ' + d.day + '.';
+  });
+  setTimeout(function(){ notice = ''; if (tab === 'recs') render(); }, 3500);
+}
+function fitLine(P, f){
+  var why = [], warn = [];
+  if (f.month !== 'Any time'){
+    if (P.best.indexOf(f.month) > -1) why.push(f.month + ' is a good month');
+    else if (P.avoid.indexOf(f.month) > -1) warn.push(f.month + ' is typhoon or rainy season');
+  }
+  return {why:why, warn:warn};
+}
+function renderRecs(out){
+  var f = view.meta, key = f.dest, P = PLACES[key], name = key.replace(', Philippines','');
+  var wrap = h('section',{class:'recs',id:'recs','aria-label':'Recommended trips'});
+  if (P){
+    var fl = fitLine(P, f);
+    var perDay = P.cost;
+    var fitTxt = f.budget > 0 ? (f.budget >= perDay ? 'Fits your ' + money(f.budget, f.currency) + ' daily budget' : 'About ' + money(perDay, 'PHP') + ' a day, above your budget') : '';
+    wrap.append(h('div',{class:'recs-h'}, h('div',null, h('h2',{text:'Trips for ' + name}), h('p',{class:'hint',text:P.blurb}))));
+    wrap.append(h('article',{class:'rec featured'},
+      h('div',null,
+        h('span',{class:'rec-rank',text:'Full trip'}),
+        h('h3',{text:'Best of ' + name + ' · ' + f.days + (f.days === 1 ? ' day' : ' days')}),
+        h('ul',{class:'why'},
+          fl.why.map(function(t){ return h('li',{class:'ok',text:t}); }),
+          fitTxt ? h('li',{class:f.budget >= perDay ? 'ok' : 'no',text:fitTxt}) : null,
+          fl.warn.map(function(t){ return h('li',{class:'no',text:t}); }))),
+      h('button',{class:'btn',type:'button',text:'Build this trip',onclick:function(){ buildTrip(key); }})));
+
+    var ideas = P.days.map(function(d, i){ return {d:d, i:i, fit:ideaFit(d, f.interests)}; });
+    ideas.sort(function(a, b){ return b.fit.length - a.fit.length || a.i - b.i; });
+    wrap.append(h('h3',{class:'recs-sub',text:'Day ideas'}));
+    wrap.append(h('div',{class:'recs-grid'}, ideas.map(function(o){
+      var cost = dayCost(o.d) + P.stay;
+      return h('article',{class:'rec'},
+        h('h3',{text:o.d.theme}),
+        o.fit.length ? h('div',{class:'fit'}, o.fit.map(function(t){ return h('span',{text:t}); })) : null,
+        h('ul',{class:'hl'}, o.d.items.slice(0, 4).map(function(i){ return h('li',{text:i.title}); })),
+        h('div',{class:'rec-foot'},
+          h('span',{class:'meter-t',text:'~' + money(cost, f.currency) + ' / person'}),
+          h('button',{class:'btn small ghost',type:'button',text:'Add to my plan',onclick:function(){ addIdea(key, o.i); }})));
+    })));
+    if (notice) wrap.append(h('p',{class:'msg',role:'status',text:notice}));
+  } else {
+    wrap.append(h('div',{class:'recs-h'}, h('div',null, h('h2',{text:'Trips for ' + name}), h('p',{class:'hint',text:'We have no ready-made stops for ' + name + ' yet. Plan it yourself in My plan, or look at these places that fit you.'}))));
+  }
+  var others = recommend(f).filter(function(r){ return r.key !== key; }).slice(0, 3);
+  wrap.append(h('h3',{class:'recs-sub',text:P ? 'You might also like' : 'Places that fit you'}));
+  wrap.append(h('div',{class:'recs-grid'}, others.map(function(r){
+    var oname = r.key.replace(', Philippines','');
+    return h('button',{class:'rec pick',type:'button',onclick:function(){ $('destSel').value = r.key; syncMeta(); render(); }},
+      h('h3',{text:oname}),
+      h('span',{class:'hint',text:(r.why[0] || r.P.blurb)}),
+      h('span',{class:'linkbtn',text:'Show trips for ' + oname}));
+  })));
+  out.append(wrap);
+}
+
 function render(){
   var out = $('out'); out.textContent = '';
   if (pending){
@@ -889,28 +997,11 @@ function render(){
       h('p',{class:'hint',text:'Claude is picking stops and checking the route. The first day usually appears within a minute.'})));
     return;
   }
-  if (recs){
-    out.append(h('section',{class:'recs',id:'recs','aria-label':'Recommended trips'},
-      h('div',{class:'recs-h'}, h('h2',{text:'Recommended for you'}), h('button',{class:'linkbtn',type:'button',text:'Hide',onclick:function(){ recs = null; render(); }})),
-      h('div',{class:'recs-grid'}, recs.map(function(r, idx){
-        var name = r.key.replace(', Philippines','');
-        return h('article',{class:'rec'},
-          h('span',{class:'rec-rank',text:idx === 0 ? 'Best match' : idx === 1 ? 'Great alternative' : 'Also consider'}),
-          h('h3',{text:name}),
-          h('p',{class:'hint',text:r.P.blurb}),
-          h('ul',{class:'why'}, r.why.map(function(t){ return h('li',{class:'ok',text:t}); }).concat(r.warn.map(function(t){ return h('li',{class:'no',text:t}); }))),
-          h('button',{class:'btn small',type:'button',text:'Build this trip',onclick:function(){
-            if (hasStops() && !confirm('Replace your current plan with a ' + name + ' trip?')) return;
-            var f = readForm(); f.dest = r.key; setForm(f); f = readForm();
-            newPlan(f); view.days = buildFromPlace(r.key, f);
-            view.trip.title = name + ' in ' + f.days + ' day' + (f.days === 1 ? '' : 's');
-            view.trip.bestTime = 'Best months: ' + monthsText(r.P.best) + '.';
-            view.trip.summary = r.P.blurb + ' Edit anything to make it yours.';
-            recs = null; touch(); render();
-            window.scrollTo({top: $('out').getBoundingClientRect().top + window.pageYOffset - 12, behavior:'smooth'});
-          }}));
-      }))));
-  }
+  var nStops = view.days.reduce(function(n, d){ return n + d.items.length; }, 0);
+  out.append(h('div',{class:'mtabs',role:'tablist','aria-label':'View'},
+    h('button',{class:'mtab',type:'button',role:'tab','aria-selected':String(tab === 'recs'),text:'Recommended trips',onclick:function(){ tab = 'recs'; render(); }}),
+    h('button',{class:'mtab',type:'button',role:'tab','aria-selected':String(tab === 'plan'),text:'My plan' + (nStops ? ' · ' + nStops + (nStops === 1 ? ' stop' : ' stops') : ''),onclick:function(){ tab = 'plan'; render(); }})));
+  if (tab === 'recs'){ renderRecs(out); return; }
 
   var m = view.meta, trip = view.trip;
   var total = tripCost(view.days);
@@ -1003,7 +1094,7 @@ var ERR = {
 };
 function setBusy(b){
   busy = b;
-  $('go').disabled = b; $('rec').disabled = b; $('ai').disabled = b;
+  $('go').disabled = b; $('ai').disabled = b;
   $('stop').hidden = !b;
 }
 function applyReply(text, f){
@@ -1011,7 +1102,7 @@ function applyReply(text, f){
   if (!r.trip && !r.days.length) return false;
   pending = null;
   view = {kind:'generated', meta:f, trip:r.trip || {title:f.dest, summary:'', bestTime:'', tips:[]}, days:r.days, active:r.days[0] ? r.days[0].day : 1};
-  editing = null; adding = null;
+  editing = null; adding = null; tab = 'plan';
   render();
   return true;
 }
@@ -1053,20 +1144,32 @@ $('days').addEventListener('change', function(){ resizeDays(parseInt($('days').v
 ['destSel','month','party','travelers','budget','currency'].forEach(function(id){
   $(id).addEventListener('input', function(){ syncMeta(); render(); });
 });
-$('plan').addEventListener('submit', function(e){
-  e.preventDefault();
-  say(''); notice = ''; showCopy = '';
-  recs = recommend(readForm());
-  render();
-  var el = document.getElementById('recs'); if (el && el.scrollIntoView) el.scrollIntoView({behavior:'smooth', block:'start'});
-});
+$('plan').addEventListener('submit', function(e){ e.preventDefault(); });
+['interests','pace'].forEach(function(id){ $(id).addEventListener('change', function(){ syncMeta(); render(); }); });
 $('go').addEventListener('click', function(){
   if (hasStops() && !confirm('Start a new plan? Your current stops will be cleared.')) return;
-  say(''); notice = ''; showCopy = ''; recs = null;
-  var f = readForm(); newPlan(f); save(); render();
+  say(''); notice = ''; showCopy = '';
+  var f = readForm(); newPlan(f); tab = 'plan'; save(); render();
 });
 $('ai').addEventListener('click', suggest);
 $('stop').addEventListener('click', function(){ if (ctl) ctl.abort(); });
+
+/* ---------- wavy tagline ---------- */
+(function(){
+  var el = document.querySelector('.wavetext .tagline'); if (!el) return;
+  var text = el.textContent; el.setAttribute('aria-label', text); el.textContent = '';
+  var n = 0;
+  text.split(' ').forEach(function(w, wi){
+    var word = h('span',{class:'wv-word','aria-hidden':'true'});
+    w.split('').forEach(function(ch){
+      var l = h('span',{class:'wv-ch',text:ch});
+      l.style.setProperty('--d', (-n * 0.11).toFixed(2) + 's');
+      l.style.setProperty('--y', (Math.sin(n * 0.6) * 3).toFixed(1) + 'px');
+      word.append(l); n++;
+    });
+    el.append(word); if (wi < text.split(' ').length - 1) el.append(' ');
+  });
+})();
 
 /* ---------- restore and start ---------- */
 try {
@@ -1076,6 +1179,7 @@ try {
     view = {kind:sv.kind === 'generated' ? 'generated' : 'mine', meta:sv.meta, trip:Object.assign(blankTrip(), sv.trip || {}), days:sv.days, active:1};
     view.days.forEach(function(d){ d.items = (d.items || []).map(normItem).filter(Boolean); d.theme = d.theme || ''; });
     setForm(view.meta);
+    if (hasStops()) tab = 'plan';
   }
 } catch (e) {}
 if (!view) newPlan(readForm());
