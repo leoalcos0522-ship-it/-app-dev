@@ -269,9 +269,9 @@ input[type=text].themein:hover{border-bottom-color:var(--dc)}
 .why .ok::before{content:"✓";color:var(--green)} .why .no::before{content:"!";color:var(--danger)}
 .rec .btn{justify-self:start;margin-top:4px}
 .wavetext{position:relative;isolation:isolate;margin-top:-6px;padding:36px 24px 16px;background:linear-gradient(var(--sea3),var(--sea3)) 0 26px/100% calc(100% - 26px) no-repeat}
-.wavetext::before,.wavetext::after{content:"";position:absolute;left:0;right:0;height:30px;--w:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 30'%3E%3Cpath d='M0 16 Q15 2 30 16 T60 16 T90 16 T120 16 V30 H0Z'/%3E%3C/svg%3E");-webkit-mask:var(--w) repeat-x 0 0/120px 30px;mask:var(--w) repeat-x 0 0/120px 30px}
+.wavetext::before,.wavetext::after{content:"";position:absolute;left:0;right:0;height:30px;--w:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 30'%3E%3Cpath d='M0 16 Q40 2 80 16 T160 16 T240 16 T320 16 V30 H0Z'/%3E%3C/svg%3E");-webkit-mask:var(--w) repeat-x 0 0/320px 30px;mask:var(--w) repeat-x 0 0/320px 30px}
 .wavetext::before{top:-4px;background:var(--sea3);z-index:-1}
-.wavetext::after{top:-14px;background:var(--sea2);opacity:.8;z-index:-2;-webkit-mask-position:60px 0;mask-position:60px 0}
+.wavetext::after{top:-14px;background:var(--sea2);opacity:.8;z-index:-2;-webkit-mask-position:160px 0;mask-position:160px 0}
 
 .wv-word{display:inline-block;white-space:nowrap}
 .wv-ch{display:inline-block;transform:translateY(var(--y,0))}
@@ -1355,13 +1355,13 @@ $('stop').addEventListener('click', function(){ if (ctl) ctl.abort(); });
     w.split('').forEach(function(ch){ var l = h('span',{class:'wv-ch',text:ch}); letters.push(l); word.append(l); });
     el.append(word); if (wi < words.length - 1) el.append(' ');
   });
-  /* same shape as the band's top edge: a 60px-period sine, crest at x = 15px, softened to 4px */
+  /* same shape as the band's top edge: a 160px-period sine, crest at x = 40px, 6px high */
   var band = el.closest('.wavetext');
   function layoutWave(){
     var left = band.getBoundingClientRect().left;
     letters.forEach(function(l){
       var r = l.getBoundingClientRect(), x = r.left + r.width / 2 - left;
-      l.style.setProperty('--y', (-4 * Math.sin(2 * Math.PI * x / 60)).toFixed(1) + 'px');
+      l.style.setProperty('--y', (-6 * Math.sin(2 * Math.PI * x / 160)).toFixed(1) + 'px');
     });
   }
   layoutWave();
