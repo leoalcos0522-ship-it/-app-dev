@@ -1,0 +1,927 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}
+
+</style></head><body>
+<title>LakbayLokal — Plan Your Own Philippine Trip</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Familjen+Grotesk:wght@400..700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a flag-coloured hero scene, then a sticky trip form beside a ticket-style overview and one timetable day at a time.
+   Palette: Philippine flag blue, red and sun yellow, plus tropical green, orange and violet for categories. */
+:root{
+  --bg:#EAF3FB; --surface:#FFFFFF; --fg:#0B1F4B; --muted:#4A5C80; --line:#C5D6EE;
+  --blue:#0038A8; --blue-ink:#FFFFFF; --red:#CE1126; --red-ink:#FFFFFF;
+  --yellow:#FCD116; --yellow-ink:#3A2E00; --green:#17804A; --green-ink:#FFFFFF;
+  --orange:#D9480F; --orange-ink:#FFFFFF; --violet:#5B3FC4; --violet-ink:#FFFFFF;
+  --slate:#5A6B8C; --slate-ink:#FFFFFF;
+  --btn:#0038A8; --btn-ink:#FFFFFF; --accent-text:#0038A8; --danger:#CE1126; --scrim:rgba(255,255,255,.78);
+  --sky1:#6DB9F2; --sky2:#DCEFFF; --cloud:#FFFFFF; --sun:#FCD116;
+  --mtn:#2F63C7; --mtn-hi:#4C82E0; --hill:#1E9B58; --palm:#14804A; --trunk:#7A4A1E;
+  --sea1:#0A58CA; --sea2:#0A47B0; --sea3:#0038A8; --hull:#CE1126; --sail:#FCD116; --sail2:#FFFFFF;
+  --hero-ink:#0B1F4B;
+  --font-display:'Bricolage Grotesque','Segoe UI',system-ui,sans-serif;
+  --font-body:'Familjen Grotesk','Segoe UI',system-ui,sans-serif;
+  --font-mono:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#071433; --surface:#0E1F4A; --fg:#EEF3FF; --muted:#A3B4DB; --line:#26427F;
+    --blue:#5B8CFF; --blue-ink:#04112E; --red:#FF5A6B; --red-ink:#2B0006;
+    --yellow:#FCD116; --yellow-ink:#2B2200; --green:#3DD68C; --green-ink:#032015;
+    --orange:#FF9A4D; --orange-ink:#2B1200; --violet:#A78BFF; --violet-ink:#140A33;
+    --slate:#8FA3CC; --slate-ink:#0A1738;
+    --btn:#FCD116; --btn-ink:#2B2200; --accent-text:#9DB9FF; --danger:#FF8A93; --scrim:rgba(7,20,51,.7);
+    --sky1:#050E2B; --sky2:#233A8C; --cloud:#8FA3E6; --sun:#FCD116;
+    --mtn:#2B3F9A; --mtn-hi:#3E58BF; --hill:#0E6B45; --palm:#0A5A38; --trunk:#4B2E14;
+    --sea1:#0B2A7A; --sea2:#08205F; --sea3:#061747; --hull:#FF4D5E; --sail:#FCD116; --sail2:#EEF3FF;
+    --hero-ink:#FFFFFF;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#071433; --surface:#0E1F4A; --fg:#EEF3FF; --muted:#A3B4DB; --line:#26427F;
+  --blue:#5B8CFF; --blue-ink:#04112E; --red:#FF5A6B; --red-ink:#2B0006;
+  --yellow:#FCD116; --yellow-ink:#2B2200; --green:#3DD68C; --green-ink:#032015;
+  --orange:#FF9A4D; --orange-ink:#2B1200; --violet:#A78BFF; --violet-ink:#140A33;
+  --slate:#8FA3CC; --slate-ink:#0A1738;
+  --btn:#FCD116; --btn-ink:#2B2200; --accent-text:#9DB9FF; --danger:#FF8A93; --scrim:rgba(7,20,51,.7);
+  --sky1:#050E2B; --sky2:#233A8C; --cloud:#8FA3E6; --sun:#FCD116;
+  --mtn:#2B3F9A; --mtn-hi:#3E58BF; --hill:#0E6B45; --palm:#0A5A38; --trunk:#4B2E14;
+  --sea1:#0B2A7A; --sea2:#08205F; --sea3:#061747; --hull:#FF4D5E; --sail:#FCD116; --sail2:#EEF3FF;
+  --hero-ink:#FFFFFF;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:400 15px/1.5 var(--font-body);padding-inline:16px;padding-block:20px 40px}
+h1,h2,h3,p,dl,dd{margin:0}
+button{font-family:inherit}
+.wrap{max-width:1180px;margin-inline:auto;display:grid;gap:22px}
+
+/* flag-colour band, reused on the page top, the form and the ticket */
+.flag{display:grid;grid-template-columns:1fr 1fr 1fr;height:6px;border-radius:3px;overflow:hidden}
+.flag i:nth-child(1){background:var(--blue)} .flag i:nth-child(2){background:var(--red)} .flag i:nth-child(3){background:var(--yellow)}
+
+/* hero scene */
+.hero{position:relative;isolation:isolate;overflow:hidden;border-radius:18px;border:1px solid var(--line);min-height:250px;padding:22px 24px;display:flex;flex-direction:column;align-items:flex-start;gap:8px;color:var(--hero-ink)}
+.scene{position:absolute;inset:0;width:100%;height:100%;z-index:-1;display:block}
+.sk1{stop-color:var(--sky1)} .sk2{stop-color:var(--sky2)}
+.cloud{fill:var(--cloud);opacity:.85} .sun use,.sun circle{fill:var(--sun)}
+.mtn{fill:var(--mtn)} .mtn-hi{fill:var(--mtn-hi)} .hill{fill:var(--hill)} .palm use{fill:var(--palm)}
+.trunk{fill:none;stroke:var(--trunk);stroke-width:7;stroke-linecap:round}
+.sea1{fill:var(--sea1)} .sea2{fill:var(--sea2)} .sea3{fill:var(--sea3)}
+.hull{fill:var(--hull)} .sail{fill:var(--sail)} .sail2{fill:var(--sail2)}
+.outr{fill:none;stroke:var(--hull);stroke-width:4;stroke-linecap:round}
+.mast{fill:none;stroke:var(--hero-ink);stroke-width:3;stroke-linecap:round}
+.bird{fill:none;stroke:var(--hero-ink);stroke-width:2.5;stroke-linecap:round;opacity:.7}
+.brand{display:flex;align-items:center;gap:6px;font:800 clamp(2.6rem,8vw,4rem)/.9 var(--font-display);letter-spacing:-.045em}
+.sundot{width:.34em;height:.34em;border-radius:50%;background:var(--yellow);box-shadow:0 0 0 3px var(--blue);flex:none;margin-top:.35em}
+.meaning{font:500 12px/1.4 var(--font-mono);letter-spacing:.05em;background:var(--scrim);padding:4px 8px;border-radius:4px}
+.tagline{max-width:24rem;font-weight:500;background:var(--scrim);padding:6px 10px;border-radius:6px}
+
+.layout{display:grid;gap:24px;grid-template-columns:minmax(0,1fr)}
+@media (min-width:960px){
+  .layout{grid-template-columns:350px minmax(0,1fr);gap:36px;align-items:start}
+  .panel{position:sticky;top:16px}
+}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:0 20px 20px;display:grid;gap:16px;min-width:0;overflow:hidden}
+.panel .flag{margin-inline:-20px;border-radius:0;height:8px}
+.panel-h{display:flex;align-items:center;gap:8px;font:700 1.2rem/1.2 var(--font-display);letter-spacing:-.01em}
+.panel-h svg{width:24px;height:24px;fill:none;stroke:var(--red);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.field{display:grid;gap:6px;min-width:0}
+.row2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.lbl{font:500 11px/1.2 var(--font-mono);letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.hint{font-size:12.5px;color:var(--muted)}
+input[type=text],input[type=number],select,textarea{
+  font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:8px;
+  padding:9px 10px;width:100%;min-width:0;
+}
+textarea{resize:vertical;min-height:64px}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible{outline:2px solid var(--accent-text);outline-offset:2px}
+
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{position:relative}
+.chip input{position:absolute;opacity:0;pointer-events:none}
+.chip span{display:inline-block;padding:5px 11px;border:2px solid var(--chip);border-radius:999px;cursor:pointer;background:var(--bg);font-size:13.5px}
+.chip input:checked+span{background:var(--chip);color:var(--chip-ink)}
+.chip input:focus-visible+span{outline:2px solid var(--fg);outline-offset:2px}
+.c0{--chip:var(--blue);--chip-ink:var(--blue-ink)} .c1{--chip:var(--red);--chip-ink:var(--red-ink)}
+.c2{--chip:var(--yellow);--chip-ink:var(--yellow-ink)} .c3{--chip:var(--green);--chip-ink:var(--green-ink)}
+.c4{--chip:var(--orange);--chip-ink:var(--orange-ink)} .c5{--chip:var(--violet);--chip-ink:var(--violet-ink)}
+
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg label{position:relative}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg span{display:block;text-align:center;padding:8px 4px;cursor:pointer;background:var(--bg);font-size:13.5px}
+.seg label+label span{border-left:1px solid var(--line)}
+.seg input:checked+span{background:var(--blue);color:var(--blue-ink);font-weight:600}
+.seg input:focus-visible+span{outline:2px solid var(--fg);outline-offset:-3px}
+
+.btn{font:700 15px/1.2 var(--font-body);border:2px solid var(--btn);border-radius:10px;padding:12px 16px;cursor:pointer;background:var(--btn);color:var(--btn-ink)}
+.btn.ghost{background:transparent;color:var(--fg);border-color:var(--line)}
+.btn.small{padding:8px 12px;font-size:13.5px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.actions .btn:first-child{flex:1 1 auto}
+.msg{font-size:13.5px;color:var(--muted);min-height:1.4em}
+.msg.err{color:var(--danger)}
+
+.out{display:grid;gap:22px;min-width:0}
+.statusbar{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;justify-content:space-between}
+.badge{font:500 11px/1 var(--font-mono);letter-spacing:.08em;text-transform:uppercase;padding:6px 9px;border-radius:4px;background:var(--yellow);color:var(--yellow-ink)}
+.badge.live{background:var(--blue);color:var(--blue-ink)}
+.statusbar .actions .btn{flex:0 0 auto}
+
+/* overview as a boarding pass */
+.ticket{background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.ticket .flag{height:10px;border-radius:0}
+.ticket-main{padding:22px 22px 24px}
+.ticket-div{position:relative;border-top:2px dashed var(--line)}
+.ticket-div::before,.ticket-div::after{content:"";position:absolute;top:-12px;width:22px;height:22px;border-radius:50%;background:var(--bg);border:1px solid var(--line)}
+.ticket-div::before{left:-12px} .ticket-div::after{right:-12px}
+.ticket-sub{padding:20px 22px 22px;display:grid;gap:16px}
+.route{font:500 11px/1.3 var(--font-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--red);margin-bottom:8px}
+.ticket h2{font:700 clamp(1.8rem,4.2vw,2.7rem)/1.04 var(--font-display);letter-spacing:-.03em;text-wrap:balance}
+.summary{max-width:62ch;margin-top:10px}
+.facts{display:flex;flex-wrap:wrap;gap:10px 32px}
+.fact dt{font:500 11px/1.3 var(--font-mono);letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.fact dd{font:600 16px/1.4 var(--font-body);font-variant-numeric:tabular-nums}
+.stops{display:flex;flex-wrap:wrap;gap:6px}
+.stoptag{display:inline-flex;align-items:center;gap:6px;padding:3px 10px 3px 4px;border-radius:999px;background:var(--bg);border:1px solid var(--line);font-size:13px}
+.tips{margin:0;padding:0;list-style:none;display:grid;gap:6px;max-width:62ch}
+.tips li{position:relative;padding-left:18px;color:var(--muted)}
+.tips li::before{content:"";position:absolute;left:0;top:.6em;width:8px;height:8px;border-radius:50%;background:var(--yellow);box-shadow:0 0 0 2px var(--blue)}
+
+.tabs{display:flex;gap:8px;flex-wrap:wrap}
+.tab{font:700 14px/1.2 var(--font-body);background:var(--surface);border:2px solid var(--dc);padding:8px 16px;border-radius:999px;cursor:pointer;color:var(--fg)}
+.tab[aria-selected="true"]{background:var(--dc);color:var(--dc-ink)}
+.d0{--dc:var(--blue);--dc-ink:var(--blue-ink)} .d1{--dc:var(--red);--dc-ink:var(--red-ink)}
+.d2{--dc:var(--green);--dc-ink:var(--green-ink)} .d3{--dc:var(--orange);--dc-ink:var(--orange-ink)}
+
+.day{display:grid;gap:20px;min-width:0}
+.dayhead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:14px 24px}
+.dayid{display:flex;align-items:center;gap:16px;min-width:0}
+.stamp{flex:none;width:80px;height:80px;border-radius:50%;border:3px double var(--dc);color:var(--dc);display:flex;flex-direction:column;align-items:center;justify-content:center;transform:rotate(-8deg);font-family:var(--font-mono)}
+.stamp .st-d{font-size:9px;letter-spacing:.24em;margin-right:-.24em}
+.stamp .st-n{font:800 30px/1 var(--font-display)}
+.stamp .st-b{font-size:7px;letter-spacing:.2em;margin-right:-.2em}
+.daytitle{font:700 1.5rem/1.15 var(--font-display);letter-spacing:-.02em;text-wrap:balance}
+.dayof{font:500 11px/1.4 var(--font-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+.meter{min-width:min(100%,250px);display:grid;gap:6px}
+.meter-t{font:500 12.5px/1.3 var(--font-mono);font-variant-numeric:tabular-nums}
+.bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--dc)}
+.meter.over .bar i{background:var(--danger)}
+.meter.over .meter-t{color:var(--danger)}
+
+.items{list-style:none;margin:0;padding:0}
+.item{display:grid;grid-template-columns:3rem 30px minmax(0,1fr) auto;gap:0 12px;padding-bottom:20px}
+.time{font:500 13px/2.1 var(--font-mono);color:var(--muted);font-variant-numeric:tabular-nums}
+.rail{position:relative;display:flex;justify-content:center}
+.rail::before{content:"";position:absolute;left:calc(50% - 1px);top:28px;bottom:-20px;width:2px;background:var(--line)}
+.item:last-child .rail::before{display:none}
+.pin{position:relative;width:30px;height:30px;border-radius:50%;background:var(--cat);color:var(--cat-ink);display:grid;place-items:center;box-shadow:0 0 0 3px var(--bg)}
+.pin svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.ititle{font-weight:600;font-size:16px;line-height:1.4;padding-top:2px}
+.imeta{font:500 11px/1.5 var(--font-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:2px}
+.inote{margin-top:4px;color:var(--muted);max-width:60ch}
+.icost{font:500 13px/2.1 var(--font-mono);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.icost.free{color:var(--accent-text)}
+.cat-food{--cat:var(--orange);--cat-ink:var(--orange-ink)}
+.cat-nature{--cat:var(--green);--cat-ink:var(--green-ink)}
+.cat-culture{--cat:var(--blue);--cat-ink:var(--blue-ink)}
+.cat-sight{--cat:var(--red);--cat-ink:var(--red-ink)}
+.cat-night{--cat:var(--violet);--cat-ink:var(--violet-ink)}
+.cat-shop{--cat:var(--yellow);--cat-ink:var(--yellow-ink)}
+.cat-rest,.cat-transport{--cat:var(--slate);--cat-ink:var(--slate-ink)} .cat-stay{--cat:var(--violet);--cat-ink:var(--violet-ink)}
+.stoptag .pin{width:22px;height:22px;box-shadow:none}
+.stoptag .pin svg{width:12px;height:12px}
+
+.refine{display:grid;gap:10px;border-top:1px solid var(--line);padding-top:18px}
+.refine-row{display:flex;gap:8px;flex-wrap:wrap}
+.refine-row input{flex:1 1 220px}
+.qchips{display:flex;flex-wrap:wrap;gap:6px}
+.qchips button{font-size:13px;padding:6px 11px;border:1.5px solid var(--blue);border-radius:999px;background:var(--surface);color:var(--fg);cursor:pointer}
+.qchips button:disabled{opacity:.5;cursor:not-allowed}
+.copybox{width:100%;min-height:140px;font:12.5px/1.5 var(--font-mono)}
+.foot{font-size:12.5px;color:var(--muted);max-width:70ch}
+
+.thinking{display:grid;gap:10px;padding:28px;border:2px dashed var(--blue);border-radius:14px;background:var(--surface)}
+.thinking strong{font:700 1.3rem/1.2 var(--font-display)}
+.dots span{display:inline-block;width:9px;height:9px;margin-right:6px;border-radius:50%;opacity:.4}
+.dots span:nth-child(1){background:var(--blue)} .dots span:nth-child(2){background:var(--red)} .dots span:nth-child(3){background:var(--yellow)}
+@media (prefers-reduced-motion:no-preference){
+  .dots span{animation:blink 1.2s infinite ease-in-out}
+  .dots span:nth-child(2){animation-delay:.2s}
+  .dots span:nth-child(3){animation-delay:.4s}
+  @keyframes blink{0%,100%{opacity:.3}50%{opacity:1}}
+}
+.stream-note{font:500 12px/1.4 var(--font-mono);color:var(--muted)}
+
+.shore{margin-top:6px;border-radius:14px;overflow:hidden;display:grid}
+.shore svg{display:block;width:100%;height:70px}
+.shore p{background:var(--sea3);color:#FFFFFF;text-align:center;padding:10px 16px 14px;font:600 14px/1.3 var(--font-display);letter-spacing:.02em}
+
+.brand .lokal{color:var(--red)}
+.hero{min-height:300px;justify-content:space-between;padding-bottom:0}
+.wavetext{margin:0 -24px;padding:44px 24px 18px;width:calc(100% + 48px);background:linear-gradient(to bottom,transparent,var(--sea3) 58%);color:#fff;display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px}
+.wavetext .tagline{margin:0;max-width:36rem;padding:0;background:none;border-radius:0;font:600 clamp(1rem,2.3vw,1.2rem)/1.35 var(--font-display);letter-spacing:.005em;text-shadow:0 1px 8px rgba(0,20,80,.45)}
+.wavetext .meaning{margin:0;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.35);color:#fff;border-radius:999px;padding:5px 12px 5px 10px;display:inline-flex;align-items:center;gap:8px;font-size:11.5px;backdrop-filter:blur(2px)}
+.wavetext .meaning::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--yellow);flex:none}
+@media (min-width:760px){.wavetext{flex-wrap:nowrap;justify-content:space-between}.wavetext .meaning{flex:none}}
+
+.panel-sub{font-size:13.5px;color:var(--muted);margin-top:-8px}
+details.more{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--bg)}
+details.more summary{cursor:pointer;font:500 11px/1.2 var(--font-mono);letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+details.more[open] summary{margin-bottom:12px}
+details.more .field+.field{margin-top:14px}
+
+input[type=text].titlein{font:700 clamp(1.8rem,4.2vw,2.7rem)/1.04 var(--font-display);letter-spacing:-.03em;color:var(--fg);background:transparent;border:0;border-bottom:2px dashed var(--line);border-radius:0;padding:2px 0 4px;width:100%}
+input[type=text].titlein:hover{border-bottom-color:var(--blue)}
+input[type=text].themein{font:700 1.5rem/1.15 var(--font-display);letter-spacing:-.02em;color:var(--fg);background:transparent;border:0;border-bottom:2px dashed var(--line);border-radius:0;padding:2px 0 3px;width:100%;min-width:0}
+input[type=text].themein:hover{border-bottom-color:var(--dc)}
+.dayid>div:last-child{flex:1}
+
+.btn.danger{color:var(--danger);border-color:var(--danger);background:transparent}
+.linkbtn{font:600 13px/1.2 var(--font-body);background:none;border:0;padding:3px 0;color:var(--accent-text);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.linkbtn.rm{color:var(--danger)}
+.ctl{display:flex;gap:14px;margin-top:6px}
+.tab.add{border-style:dashed;--dc:var(--slate);background:transparent}
+.empty{border:2px dashed var(--line);border-radius:14px;padding:22px;display:grid;gap:8px;justify-items:start;background:var(--surface)}
+.empty strong{font:700 1.15rem/1.2 var(--font-display)}
+.addwrap{display:grid;gap:12px;justify-items:start}
+.stopform{display:grid;gap:12px;border:1.5px solid var(--dc);border-radius:12px;padding:14px;background:var(--surface);margin-bottom:20px;grid-column:1/-1}
+.stopform .grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px}
+.stopform .actions .btn:first-child{flex:0 0 auto}
+.item.editing{display:block;padding-bottom:0}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-food" viewBox="0 0 24 24"><path d="M7 3v8M5 3v5a2 2 0 0 0 4 0V3M7 11v10M17 3c-2 2-3 4.5-3 7h3v11"/></symbol>
+  <symbol id="i-sight" viewBox="0 0 24 24"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></symbol>
+  <symbol id="i-nature" viewBox="0 0 24 24"><path d="M3 20l6.5-11 4 6.5 2.5-3.5L21 20z"/><circle cx="17" cy="6" r="1.6"/></symbol>
+  <symbol id="i-culture" viewBox="0 0 24 24"><path d="M3 21h18M5 21V10l7-5 7 5v11M10 21v-6h4v6M12 2v3M10.5 3.5h3"/></symbol>
+  <symbol id="i-night" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></symbol>
+  <symbol id="i-rest" viewBox="0 0 24 24"><path d="M3 18V7M3 14h18v4M21 14v-2a3 3 0 0 0-3-3h-7v5M7 12h.01"/></symbol>
+  <symbol id="i-transport" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="13" rx="2"/><path d="M4 11h16M8 20v-3M16 20v-3M8 14h.01M16 14h.01"/></symbol>
+  <symbol id="i-shop" viewBox="0 0 24 24"><path d="M5 8h14l-1 12H6zM9 8a3 3 0 0 1 6 0"/></symbol>
+</svg>
+
+<div class="wrap">
+  <div class="flag" aria-hidden="true"><i></i><i></i><i></i></div>
+
+  <header class="hero">
+    <svg class="scene" viewBox="0 0 1200 300" preserveAspectRatio="xMaxYMax slice" aria-hidden="true" focusable="false">
+      <defs>
+        <linearGradient id="skyg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" class="sk1"/><stop offset="1" class="sk2"/></linearGradient>
+        <path id="rayL" d="M0 -56 L7 -102 L-7 -102Z"/>
+        <path id="rayS" d="M0 -56 L4 -82 L-4 -82Z"/>
+        <path id="frond" d="M0 0 Q-30 -28 -80 -10 Q-38 -10 0 0Z"/>
+      </defs>
+      <rect width="1200" height="300" fill="url(#skyg)"/>
+      <g class="cloud">
+        <ellipse cx="300" cy="64" rx="48" ry="11"/><ellipse cx="330" cy="55" rx="30" ry="11"/>
+        <ellipse cx="760" cy="44" rx="42" ry="10"/><ellipse cx="786" cy="37" rx="26" ry="9"/>
+      </g>
+      <g class="sun" transform="translate(1040 160)">
+        <use href="#rayL"/><use href="#rayL" transform="rotate(45)"/><use href="#rayL" transform="rotate(90)"/><use href="#rayL" transform="rotate(135)"/>
+        <use href="#rayL" transform="rotate(180)"/><use href="#rayL" transform="rotate(225)"/><use href="#rayL" transform="rotate(270)"/><use href="#rayL" transform="rotate(315)"/>
+        <use href="#rayS" transform="rotate(22.5)"/><use href="#rayS" transform="rotate(67.5)"/><use href="#rayS" transform="rotate(112.5)"/><use href="#rayS" transform="rotate(157.5)"/>
+        <use href="#rayS" transform="rotate(202.5)"/><use href="#rayS" transform="rotate(247.5)"/><use href="#rayS" transform="rotate(292.5)"/><use href="#rayS" transform="rotate(337.5)"/>
+        <circle r="46"/>
+      </g>
+      <path class="bird" d="M560 70 q6 -7 12 0 q6 -7 12 0"/><path class="bird" d="M600 92 q5 -6 10 0 q5 -6 10 0"/>
+      <path class="mtn" d="M420 208 L612 124 L640 114 L668 124 L860 208Z"/>
+      <path class="mtn-hi" d="M640 114 L612 124 L626 152 L640 138 L656 154 L668 124Z"/>
+      <path class="hill" d="M0 212 C120 168 250 178 370 204 S520 190 580 212 L580 300 L0 300Z"/>
+      <path class="hill" d="M880 214 C940 172 1030 178 1090 200 S1180 190 1200 202 L1200 300 L880 300Z"/>
+      <g class="palm" transform="translate(112 148)">
+        <path class="trunk" d="M-6 70 Q6 34 0 0"/>
+        <use href="#frond"/><use href="#frond" transform="rotate(35)"/><use href="#frond" transform="rotate(75)"/>
+        <use href="#frond" transform="scale(-1 1)"/><use href="#frond" transform="scale(-1 1) rotate(35)"/><use href="#frond" transform="scale(-1 1) rotate(75)"/>
+      </g>
+      <rect y="208" width="1200" height="92" class="sea1"/>
+      <path class="sea2" d="M0 216 q40 -12 80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 V300 H0Z"/>
+      <g transform="translate(830 218)">
+        <path class="outr" d="M-52 -3 L-98 8 M52 -3 L98 8"/>
+        <path class="outr" d="M-114 9 H-84 M84 9 H114" style="stroke-width:6"/>
+        <path class="hull" d="M-64 -2 Q0 22 64 -2 L50 -14 L-50 -14Z"/>
+        <path class="mast" d="M0 -14 V-76"/>
+        <path class="sail" d="M5 -74 L5 -22 L48 -22Z"/>
+        <path class="sail2" d="M-5 -68 L-5 -22 L-32 -22Z"/>
+      </g>
+      <path class="sea3" d="M0 236 q40 -12 80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 V300 H0Z"/>
+    </svg>
+    <h1 class="brand">Lakbay<span class="lokal">Lokal</span><span class="sundot" aria-hidden="true"></span></h1>
+    <div class="wavetext">
+      <p class="tagline">Plan your own Philippine trip, one day and one stop at a time, and keep it within your budget.</p>
+      <p class="meaning">lakbay = journey · lokal = local</p>
+    </div>
+  </header>
+
+<div class="layout">
+    <form id="plan" class="panel" novalidate>
+      <div class="flag" aria-hidden="true"><i></i><i></i><i></i></div>
+      <h2 class="panel-h"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></svg>Plan your trip</h2>
+      <p class="panel-sub">Set the basics, then build your days on the right. Changes save as you go.</p>
+
+      <div class="field">
+        <label class="lbl" for="destSel">Destination</label>
+        <select id="destSel"></select>
+        <span class="hint">Philippine destinations only.</span>
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label class="lbl" for="days">Days</label>
+          <select id="days"></select>
+        </div>
+        <div class="field">
+          <label class="lbl" for="month">Travel month</label>
+          <select id="month"></select>
+        </div>
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label class="lbl" for="party">Travelling as</label>
+          <select id="party">
+            <option>Solo</option>
+            <option selected>Couple</option>
+            <option>Family with kids</option>
+            <option>Friends</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="lbl" for="travelers">Travelers</label>
+          <input id="travelers" type="number" min="1" max="20" value="2" inputmode="numeric">
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="lbl" for="budget">Daily budget per person</label>
+        <div class="row2" style="grid-template-columns:minmax(0,1.4fr) minmax(0,1fr)">
+          <input id="budget" type="number" min="0" step="100" value="3500" inputmode="numeric">
+          <select id="currency" aria-label="Currency"></select>
+        </div>
+        <span class="hint">Your day meters compare each day's stops against this. Count lodging, food, activities, local transport and fees. International airfare is excluded.</span>
+      </div>
+
+      <details class="more" id="aiOpts" hidden>
+        <summary>Preferences for Claude suggestions</summary>
+        <div class="field">
+          <span class="lbl" id="pace-l">Pace</span>
+          <div class="seg" role="radiogroup" aria-labelledby="pace-l" id="pace"></div>
+        </div>
+        <div class="field">
+          <span class="lbl" id="int-l">Interests</span>
+          <div class="chips" id="interests" role="group" aria-labelledby="int-l"></div>
+        </div>
+        <div class="field">
+          <label class="lbl" for="notes">Anything else</label>
+          <textarea id="notes" maxlength="400" placeholder="Vegetarian, travelling with a grandparent, must see a waterfall"></textarea>
+        </div>
+      </details>
+
+      <div class="actions">
+        <button class="btn" type="submit" id="go">Start a new plan</button>
+        <button class="btn ghost" type="button" id="ai" hidden>Suggest with Claude</button>
+        <button class="btn ghost" type="button" id="stop" hidden>Stop</button>
+      </div>
+      <p class="msg" id="formMsg" role="status"></p>
+    </form>
+
+    <main class="out" id="out" aria-live="polite"></main>
+  </div>
+
+  <footer class="shore">
+    <svg viewBox="0 0 1200 70" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+      <rect width="1200" height="70" class="sea1"/>
+      <path class="sea2" d="M0 22 q40 -14 80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 V70 H0Z"/>
+      <path class="sea3" d="M0 44 q40 -14 80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 V70 H0Z"/>
+    </svg>
+    <p>Mabuhay! Safe travels.</p>
+  </footer>
+</div>
+
+
+<script>
+(function(){
+'use strict';
+var $ = function(id){ return document.getElementById(id); };
+var NS = 'http://www.w3.org/2000/svg';
+var CATS = {food:'Food', sight:'Sights', nature:'Nature', culture:'Culture', night:'Nightlife', rest:'Rest', transport:'Transit', shop:'Shopping', stay:'Stay'};
+var INTERESTS = ['Food & markets','Beaches & islands','History','Nature & hikes','Culture & art','Nightlife','Shopping','Adventure sports','Wellness','Photography','Local experiences','Quiet/less-crowded places'];
+var PACES = ['Relaxed','Balanced','Packed'];
+var MONTHS = ['Any time','January','February','March','April','May','June','July','August','September','October','November','December'];
+var CURRENCIES = ['PHP','SGD','USD','EUR','JPY','KRW','THB','AUD','GBP'];
+var STORE = 'lakbaylokal.v1';
+
+function h(tag, attrs){
+  var e = document.createElement(tag);
+  if (attrs) for (var k in attrs){
+    var v = attrs[k];
+    if (v == null || v === false) continue;
+    if (k === 'class') e.className = v;
+    else if (k === 'text') e.textContent = v;
+    else if (k.slice(0,2) === 'on') e.addEventListener(k.slice(2), v);
+    else e.setAttribute(k, v === true ? '' : v);
+  }
+  for (var i = 2; i < arguments.length; i++){
+    var kids = [].concat(arguments[i]);
+    for (var j = 0; j < kids.length; j++){
+      var kid = kids[j];
+      if (kid == null || kid === false) continue;
+      e.append(kid.nodeType ? kid : document.createTextNode(String(kid)));
+    }
+  }
+  return e;
+}
+function pin(cat){
+  var svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('viewBox', '0 0 24 24'); svg.setAttribute('aria-hidden', 'true');
+  var u = document.createElementNS(NS, 'use'); u.setAttribute('href', '#i-' + cat);
+  svg.appendChild(u);
+  return h('span', {class:'pin cat-' + cat}, svg);
+}
+
+/* ---------- example itinerary, shown until the viewer plans their own ---------- */
+var EXAMPLE = {
+  meta:{dest:'Cebu, Philippines',days:3,month:'November',party:'Couple',travelers:2,currency:'PHP',budget:3500,pace:'Balanced',interests:['Food & markets','History','Nature & hikes'],notes:''},
+  trip:{
+    title:'Cebu in three days',
+    summary:'Day one stays in the old city where Philippine Christianity began, day two goes south for canyon water and the sardine shoals at Moalboal, and day three is mountain views and a seafood dinner.',
+    bestTime:'Dry season runs January to May. November can still bring afternoon showers.',
+    tips:['Book Kawasan canyoneering a day ahead through your hotel or a licensed operator.','Take a ride-hailing car inside the city and a shared van or bus for the south.','Carry small bills for entrance fees and market stalls.']
+  },
+  days:[
+    {day:1,theme:'Old Cebu on foot',items:[
+      {time:'07:00',title:'Budget-friendly stay',area:'Cebu City',category:'stay',duration:'1 night',cost:900,note:'Example lodging estimate for two sharing; actual rate varies by season and room type.'},
+      {time:'08:30',title:'Basilica Minore del Santo Niño',area:'Downtown',category:'culture',duration:'1 h',cost:0,note:'Go early to catch the quieter morning Mass crowd. Dress modestly.'},
+      {time:'09:45',title:"Magellan's Cross and the old plaza",area:'Downtown',category:'sight',duration:'45 min',cost:0,note:'It sits right beside the Basilica. Look up at the painted ceiling inside the kiosk.'},
+      {time:'10:45',title:'Fort San Pedro',area:'Pier Area',category:'sight',duration:'1 h',cost:30,note:'The oldest triangular bastion fort in the country. Shade is limited, so bring water.'},
+      {time:'12:30',title:'Cebu lechon lunch',area:'Downtown',category:'food',duration:'1.5 h',cost:380,note:'Ask for spiced lechon and a side of puso, the hanging rice.'},
+      {time:'14:30',title:'Casa Gorordo Museum',area:'Parian District',category:'culture',duration:'1 h',cost:100,note:'A restored 19th-century home that shows how a wealthy Cebuano family lived.'},
+      {time:'16:30',title:'Taoist Temple at sunset',area:'Beverly Hills',category:'sight',duration:'1.5 h',cost:0,note:'A short ride uphill. The city view gets better as the light drops.'},
+      {time:'19:00',title:'Grilled skewers at Larsian',area:'Fuente Osmeña',category:'night',duration:'1.5 h',cost:320,note:'Pick raw skewers at the stall, then have them grilled at the shared tables.'}
+    ]},
+    {day:2,theme:'Canyon water and sardines',items:[
+      {time:'05:30',title:'Ride south to Badian',area:'South Bus Terminal',category:'transport',duration:'3 h',cost:400,note:'Leave early. Shared vans and buses leave from the South Bus Terminal.'},
+      {time:'09:00',title:'Kawasan Falls canyoneering',area:'Badian',category:'nature',duration:'4 h',cost:1700,note:'Includes jumps, a guide and gear. Wear shoes that can get wet and stay on.'},
+      {time:'13:30',title:'Late lunch near the falls',area:'Badian',category:'food',duration:'1 h',cost:350,note:'Grilled fish and rice at a simple roadside eatery.'},
+      {time:'15:30',title:'Panagsama Beach and sardine snorkel',area:'Moalboal',category:'nature',duration:'2 h',cost:350,note:'The sardine school sits close to shore. Rent a mask and fins on the beach.'},
+      {time:'18:00',title:'Beachfront dinner',area:'Moalboal',category:'food',duration:'1.5 h',cost:450,note:'Pick a table facing the water and try the fresh catch of the day.'},
+      {time:'19:45',title:'Ride back to the city',area:'Moalboal',category:'transport',duration:'3 h',cost:400,note:'Book the last van early, since evening seats fill quickly.'}
+    ]},
+    {day:3,theme:'Hills, gardens and seafood',items:[
+      {time:'08:00',title:'Temple of Leah',area:'Busay',category:'sight',duration:'1 h',cost:100,note:'Reach it in the cooler morning hours, before the tour groups arrive.'},
+      {time:'09:30',title:'Sirao Pictorial Garden',area:'Busay',category:'nature',duration:'1 h',cost:100,note:'Flower fields with a lookout. Go in the morning for softer light.'},
+      {time:'11:00',title:'Tops Lookout',area:'Busay',category:'nature',duration:'1 h',cost:100,note:'A wide view of the city and Mactan channel on clear days.'},
+      {time:'12:30',title:'Lunch in the hills',area:'Busay',category:'food',duration:'1.5 h',cost:400,note:'Many restaurants here have a view and serve Cebuano comfort dishes.'},
+      {time:'15:00',title:'Pasalubong shopping',area:'Downtown',category:'shop',duration:'1.5 h',cost:500,note:'Dried mangoes, otap biscuits and rosquillos travel well.'},
+      {time:'18:30',title:'Paluto seafood dinner',area:'Pasil',category:'food',duration:'2 h',cost:650,note:'Choose fresh fish at the market, then have a nearby stall cook it to order.'}
+    ]}
+  ]
+};
+
+
+function fillSelect(sel, list, dflt){
+  list.forEach(function(v){ var o = h('option',{value:String(v),text:String(v)}); if (String(v) === String(dflt)) o.selected = true; sel.append(o); });
+}
+var DESTS = [
+  ['Luzon', ['Manila, Philippines','Baguio, Philippines','Sagada, Mountain Province, Philippines','Banaue, Ifugao, Philippines','Vigan, Ilocos Sur, Philippines','Pagudpud, Ilocos Norte, Philippines','San Juan, La Union, Philippines','Baler, Aurora, Philippines','Tagaytay, Cavite, Philippines','Zambales coast (Anawangin and Potipot), Philippines','Puerto Galera, Oriental Mindoro, Philippines','Batanes, Philippines','Legazpi and Mayon, Albay, Philippines','Donsol, Sorsogon, Philippines','Caramoan, Camarines Sur, Philippines','Clark, Pampanga, Philippines','Marinduque, Philippines']],
+  ['Palawan', ['El Nido, Palawan, Philippines','Coron, Palawan, Philippines','Puerto Princesa, Palawan, Philippines','Port Barton, Palawan, Philippines']],
+  ['Visayas', ['Cebu, Philippines','Malapascua, Cebu, Philippines','Bohol, Philippines','Boracay, Aklan, Philippines','Siquijor, Philippines','Dumaguete, Negros Oriental, Philippines','Bacolod, Negros Occidental, Philippines','Iloilo, Philippines','Guimaras, Philippines','Biliran, Philippines','Tacloban, Leyte, Philippines','Romblon, Philippines']],
+  ['Mindanao', ['Siargao, Philippines','Davao, Philippines','Samal Island, Davao del Norte, Philippines','Camiguin, Philippines','Cagayan de Oro, Philippines','Zamboanga City, Philippines','Surigao del Sur, Philippines','Dinagat Islands, Philippines']]
+];
+var DEFAULT_DEST = 'Cebu, Philippines';
+DESTS.forEach(function(g){
+  var og = h('optgroup',{label:g[0]});
+  g[1].forEach(function(d){ og.append(h('option',{value:d,text:d.replace(', Philippines','')})); });
+  $('destSel').append(og);
+});
+$('destSel').value = DEFAULT_DEST;
+function getDest(){ return $('destSel').value; }
+function knownDest(d){ return DESTS.some(function(g){ return g[1].indexOf(d) > -1; }); }
+function setDest(d){ $('destSel').value = knownDest(d) ? d : DEFAULT_DEST; }
+fillSelect($('days'), [1,2,3,4,5,6,7,8,9,10].map(String), '3');
+fillSelect($('month'), MONTHS, 'November');
+fillSelect($('currency'), CURRENCIES, 'PHP');
+PACES.forEach(function(p){
+  $('pace').append(h('label',null,
+    h('input',{type:'radio',name:'pace',value:p,checked:p==='Balanced'}),
+    h('span',{text:p})));
+});
+INTERESTS.forEach(function(t, i){
+  $('interests').append(h('label',{class:'chip c' + (i % 6)},
+    h('input',{type:'checkbox',value:t,id:'int'+i,checked:EXAMPLE.meta.interests.indexOf(t)>-1}),
+    h('span',{text:t})));
+});
+
+function readForm(){
+  var dest = getDest();
+  var days = Math.min(10, Math.max(1, parseInt($('days').value,10) || 3));
+  var travelers = Math.min(20, Math.max(1, parseInt($('travelers').value,10) || 1));
+  var budget = Math.max(0, Number($('budget').value) || 0);
+  var pace = (document.querySelector('input[name="pace"]:checked') || {}).value || 'Balanced';
+  var interests = [].slice.call(document.querySelectorAll('#interests input:checked')).map(function(i){ return i.value; });
+  return {dest:dest, days:days, month:$('month').value, party:$('party').value, travelers:travelers,
+          currency:$('currency').value, budget:budget, pace:pace, interests:interests, notes:$('notes').value.trim()};
+}
+function setForm(m){
+  setDest(m.dest); $('days').value = String(m.days || 3); $('month').value = m.month || 'Any time';
+  $('party').value = m.party || 'Couple'; $('travelers').value = m.travelers || 2;
+  $('currency').value = m.currency || 'PHP'; $('budget').value = m.budget || 0; $('notes').value = m.notes || '';
+  [].forEach.call(document.querySelectorAll('input[name="pace"]'), function(r){ r.checked = r.value === m.pace; });
+  [].forEach.call(document.querySelectorAll('#interests input'), function(c){ c.checked = (m.interests || []).indexOf(c.value) > -1; });
+}
+function say(text, isErr){ var m = $('formMsg'); m.textContent = text || ''; m.className = 'msg' + (isErr ? ' err' : ''); }
+
+function syncMeta(){
+  var f = readForm(); f.days = view.days.length;
+  view.meta = f; touch();
+}
+function resizeDays(n){
+  var cur = view.days.length;
+  if (n > cur){ for (var i = cur + 1; i <= n; i++) view.days.push({day:i, theme:'', items:[]}); }
+  else if (n < cur){
+    while (view.days.length > n){
+      var last = view.days[view.days.length - 1];
+      if (last.items.length){ say('Remove the stops from Day ' + last.day + ' first to shorten the trip.', true); $('days').value = String(view.days.length); break; }
+      view.days.pop();
+    }
+  }
+  if (!activeDay()) view.active = view.days.length;
+}
+
+/* ---------- parsing the streamed reply ---------- */
+function str(v, n){ return (typeof v === 'string' ? v : v == null ? '' : String(v)).trim().slice(0, n || 300); }
+function normItem(o){
+  if (!o || typeof o !== 'object') return null;
+  var title = str(o.title, 120); if (!title) return null;
+  var cat = CATS[o.category] ? o.category : 'sight';
+  return {time:str(o.time,5), title:title, area:str(o.area,80), category:cat, duration:str(o.duration,20),
+          cost:Math.max(0, Number(o.cost) || 0), note:str(o.note,220)};
+}
+function normDay(o, fallbackNo){
+  if (!o || !Array.isArray(o.items)) return null;
+  var items = o.items.map(normItem).filter(Boolean);
+  if (!items.length) return null;
+  return {day:Number(o.day) || fallbackNo, theme:str(o.theme,90), items:items};
+}
+function normTrip(o){
+  return {title:str(o.title,80), summary:str(o.summary,420), bestTime:str(o.bestTime,200),
+          tips:(Array.isArray(o.tips) ? o.tips : []).slice(0,4).map(function(t){ return str(t,200); }).filter(Boolean)};
+}
+function extractObjects(text){
+  var out = [], depth = 0, start = -1, inStr = false, esc = false;
+  for (var i = 0; i < text.length; i++){
+    var c = text[i];
+    if (inStr){ if (esc) esc = false; else if (c === '\\') esc = true; else if (c === '"') inStr = false; continue; }
+    if (c === '"'){ if (depth > 0) inStr = true; continue; }
+    if (c === '{'){ if (depth === 0) start = i; depth++; }
+    else if (c === '}' && depth > 0){
+      depth--;
+      if (depth === 0){ try { out.push(JSON.parse(text.slice(start, i + 1))); } catch (e) {} }
+    }
+  }
+  return out;
+}
+function parseReply(text){
+  var trip = null, days = [], seen = {};
+  extractObjects(text).forEach(function(o){
+    if (!o || typeof o !== 'object') return;
+    if (o.type === 'trip' && !trip) trip = normTrip(o);
+    else if (o.type === 'day'){
+      var d = normDay(o, days.length + 1);
+      if (d && !seen[d.day]){ seen[d.day] = 1; days.push(d); }
+    }
+  });
+  days.sort(function(a,b){ return a.day - b.day; });
+  return {trip:trip, days:days};
+}
+
+/* ---------- money and totals ---------- */
+function money(n, cur){
+  try { return new Intl.NumberFormat(undefined,{style:'currency',currency:cur,maximumFractionDigits:0}).format(n); }
+  catch (e) { return Math.round(n).toLocaleString() + ' ' + cur; }
+}
+function dayCost(d){ return d.items.reduce(function(s,i){ return s + i.cost; }, 0); }
+function tripCost(days){ return days.reduce(function(s,d){ return s + dayCost(d); }, 0); }
+function stopCounts(days){
+  var c = {};
+  days.forEach(function(d){ d.items.forEach(function(i){ c[i.category] = (c[i.category] || 0) + 1; }); });
+  return Object.keys(CATS).filter(function(k){ return c[k]; }).map(function(k){ return {cat:k, n:c[k]}; });
+}
+
+/* ---------- prompt ---------- */
+function buildPrompt(f){
+  var perDay = {Relaxed:'4 to 5', Balanced:'5 to 6', Packed:'7 to 8'}[f.pace] || '5 to 6';
+  var p = 'You are an experienced Philippines travel planner. Plan a ' + f.days + '-day trip within the Philippines to the destination below.\n\n' +
+    'Traveler profile:\n' +
+    '- Destination: ' + JSON.stringify(f.dest) + '\n' +
+    '- Party: ' + f.party + ', ' + f.travelers + ' traveler(s)\n' +
+    '- Travel month: ' + f.month + '\n' +
+    '- Budget target: about ' + f.budget + ' ' + f.currency + ' per person per day, covering lodging, food, activities, local/inter-island transport and common destination fees; international airfare is excluded. Treat this as a spending ceiling, not a minimum.\n' +
+    '- Pace: ' + f.pace + ' (' + perDay + ' stops per day)\n' +
+    '- Interests: ' + (f.interests.length ? f.interests.join(', ') : 'general highlights') + '\n' +
+    '- Extra notes from the traveler: ' + JSON.stringify(f.notes || 'none') + '\n\n' +
+    'Planning rules:\n' +
+    '- Group nearby places on the same day and order stops so travel time between them is realistic. Include meals and transit stops.\n' +
+    '- Match the interests and keep each day close to the daily budget. If a destination is expensive, reduce paid activities or recommend a better-value nearby destination rather than pretending the budget is sufficient.\n' +
+    '- Use realistic 2026 price levels. Give estimates as ranges internally, then output a conservative whole-number estimate; flag prices that vary strongly by season, weekends or holidays.\n' +
+    '- Account for accommodation as a real daily cost (use category "stay"), and include domestic flights, ferries, airport/port transfers, terminal/environmental fees and baggage when they materially affect the budget.\n' +
+    '- Use only real, well-known places and current locations. Do not invent new attractions, businesses, prices or transport routes. If unsure of a specific venue, name the dish or the area instead.\n' +
+    '- Account for the travel month (weather, crowds, closures) in timing and in the tips. Prefer current 2026 travel patterns and emerging/less-crowded alternatives when they fit the traveler.\n' +
+    '- Use realistic Philippine local transport (jeepney, tricycle, habal-habal, UV Express, bus, ferry, domestic flight) and name the real ports, terminals or airports where it matters.\n' +
+    '- For the travel month, say how typhoon season, the habagat or amihan winds, and the dry or wet season affect sea crossings, island hopping and outdoor stops, and give an indoor backup where weather could cancel a plan.\n' +
+    '- Favor regional dishes and local specialties, and mention cash needs on remote islands and any environmental fees or permits.\n' +
+    '- Costs are estimates per person in ' + f.currency + ', whole numbers, 0 if free. Prices are indicative, not live quotes; encourage checking the final operator/accommodation price before booking.\n' +
+    '- 2026 trend context: travelers are increasingly favoring domestic/nearby trips, meaningful experiences, less-crowded destinations, sustainability and better-connected regional hubs. Use these trends only when they genuinely fit the traveler.\n\n';
+  p += 'Output format. Reply with exactly ' + (f.days + 1) + ' lines of single-line JSON, no markdown, no code fences, no other text.\n' +
+    'Line 1: {"type":"trip","title":string of at most 6 words,"summary":string of 1 to 2 sentences saying why this plan fits the traveler,"bestTime":string,"tips":[3 short practical strings]}\n' +
+    'Then one line per day: {"type":"day","day":number,"theme":string,"items":[{"time":"HH:MM" in 24 hour time,"title":string,"area":string,"category":"food"|"sight"|"nature"|"culture"|"night"|"rest"|"transport"|"shop"|"stay","duration":string such as "1.5 h","cost":number,"note":string of at most 18 words with a practical tip}]}';
+  return p;
+}
+
+
+/* ---------- plan state ---------- */
+var sample = null;
+var view = null;
+var busy = false, ctl = null, pending = null, notice = '', showCopy = '', editing = null, adding = null;
+
+function blankTrip(){ return {title:'', summary:'', bestTime:'', tips:[]}; }
+function blankDays(n){ var a = []; for (var i = 1; i <= n; i++) a.push({day:i, theme:'', items:[]}); return a; }
+function newPlan(f){ view = {kind:'mine', meta:f, trip:blankTrip(), days:blankDays(f.days), active:1}; editing = null; adding = null; }
+function hasStops(){ return view.days.some(function(d){ return d.items.length; }); }
+function save(){
+  if (view.kind === 'example') return;
+  try { localStorage.setItem(STORE, JSON.stringify({view:{kind:view.kind, meta:view.meta, trip:view.trip, days:view.days}})); } catch (e) {}
+}
+function touch(){ if (view.kind === 'example') view.kind = 'mine'; save(); }
+function mutate(fn){ fn(); touch(); render(); }
+function renumber(){ view.days.forEach(function(d, i){ d.day = i + 1; }); }
+function sortItems(d){
+  d.items = d.items.map(function(it, i){ return {it:it, i:i}; })
+    .sort(function(a, b){ var x = a.it.time || '99:99', y = b.it.time || '99:99'; return x < y ? -1 : x > y ? 1 : a.i - b.i; })
+    .map(function(o){ return o.it; });
+}
+function activeDay(){ return view.days.filter(function(d){ return d.day === view.active; })[0]; }
+
+
+/* ---------- rendering ---------- */
+function stopForm(d, idx){
+  var it = idx >= 0 ? d.items[idx] : {time:'', title:'', area:'', category:'sight', duration:'', cost:0, note:''};
+  var time = h('input',{type:'time',id:'sf-time',value:it.time});
+  var title = h('input',{type:'text',id:'sf-title',value:it.title,maxlength:'120',required:true,placeholder:'e.g. Magellan\'s Cross'});
+  var cat = h('select',{id:'sf-cat'}); Object.keys(CATS).forEach(function(k){ var o = h('option',{value:k,text:CATS[k]}); if (k === it.category) o.selected = true; cat.append(o); });
+  var area = h('input',{type:'text',id:'sf-area',value:it.area,maxlength:'80',placeholder:'Neighborhood or town'});
+  var dur = h('input',{type:'text',id:'sf-dur',value:it.duration,maxlength:'20',placeholder:'1.5 h'});
+  var cost = h('input',{type:'number',id:'sf-cost',min:'0',step:'10',value:it.cost || '',inputmode:'numeric',placeholder:'0 = free'});
+  var note = h('input',{type:'text',id:'sf-note',value:it.note,maxlength:'220',placeholder:'A tip or reminder for yourself'});
+  function field(label, id, el){ return h('div',{class:'field'}, h('label',{class:'lbl','for':id,text:label}), el); }
+  var form = h('form',{class:'stopform'},
+    h('div',{class:'field'}, h('label',{class:'lbl','for':'sf-title',text:idx >= 0 ? 'Edit stop' : 'New stop on Day ' + d.day}), title),
+    h('div',{class:'grid3'}, field('Time','sf-time',time), field('Type','sf-cat',cat), field('Cost per person (' + view.meta.currency + ')','sf-cost',cost)),
+    h('div',{class:'grid3'}, field('Area','sf-area',area), field('Duration','sf-dur',dur)),
+    field('Note','sf-note',note),
+    h('div',{class:'actions'},
+      h('button',{class:'btn small',type:'submit',text:idx >= 0 ? 'Save stop' : 'Add stop'}),
+      h('button',{class:'btn ghost small',type:'button',text:'Cancel',onclick:function(){ editing = null; adding = null; render(); }})));
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    var o = normItem({time:time.value, title:title.value, area:area.value, category:cat.value, duration:dur.value, cost:cost.value, note:note.value});
+    if (!o){ title.focus(); return; }
+    mutate(function(){
+      if (idx >= 0) d.items[idx] = o; else d.items.push(o);
+      sortItems(d); editing = null; adding = null;
+    });
+  });
+  setTimeout(function(){ title.focus(); }, 0);
+  return form;
+}
+function renderItem(d, idx, cur){
+  var i = d.items[idx];
+  if (editing && editing.day === d.day && editing.idx === idx) return h('li',{class:'item editing'}, stopForm(d, idx));
+  var cost = i.cost > 0 ? money(i.cost, cur) : 'Free';
+  var meta = [CATS[i.category], i.area, i.duration].filter(Boolean).join(' · ');
+  return h('li',{class:'item'},
+    h('div',{class:'time',text:i.time || ''}),
+    h('div',{class:'rail','aria-hidden':'true'}, pin(i.category)),
+    h('div',{style:'min-width:0'},
+      h('div',{class:'ititle',text:i.title}),
+      h('div',{class:'imeta',text:meta}),
+      i.note ? h('p',{class:'inote',text:i.note}) : null,
+      h('div',{class:'ctl'},
+        h('button',{class:'linkbtn',type:'button',text:'Edit','aria-label':'Edit ' + i.title,onclick:function(){ adding = null; editing = {day:d.day, idx:idx}; render(); }}),
+        h('button',{class:'linkbtn rm',type:'button',text:'Remove','aria-label':'Remove ' + i.title,onclick:function(){ mutate(function(){ d.items.splice(idx, 1); editing = null; }); }}))),
+    h('div',{class:'icost' + (i.cost > 0 ? '' : ' free'),text:cost}));
+}
+function dayClass(n){ return 'd' + ((n - 1) % 4); }
+function renderDay(d, meta, total){
+  var cost = dayCost(d), budget = meta.budget, cur = meta.currency;
+  var pct = budget > 0 ? Math.min(100, Math.round(cost / budget * 100)) : 0;
+  var over = budget > 0 && cost > budget;
+  var label = money(cost, cur) + (budget > 0 ? ' of ' + money(budget, cur) + ' per person' : ' per person');
+  if (over) label += ' (over by ' + money(cost - budget, cur) + ')';
+  var theme = h('input',{class:'themein',type:'text',value:d.theme,maxlength:'90',placeholder:'Name this day','aria-label':'Day ' + d.day + ' title'});
+  theme.addEventListener('input', function(){ d.theme = theme.value; touch(); });
+  var isAdding = adding === d.day;
+  return h('section',{class:'day ' + dayClass(d.day),role:'tabpanel',id:'panel-' + d.day,'aria-labelledby':'tab-' + d.day},
+    h('div',{class:'dayhead'},
+      h('div',{class:'dayid'},
+        h('div',{class:'stamp','aria-hidden':'true'}, h('span',{class:'st-d',text:'DAY'}), h('span',{class:'st-n',text:String(d.day)}), h('span',{class:'st-b',text:'LOKAL'})),
+        h('div',{style:'min-width:0'}, theme, h('div',{class:'dayof',text:'Day ' + d.day + ' of ' + total}))),
+      budget > 0 ? h('div',{class:'meter' + (over ? ' over' : '')},
+        h('div',{class:'meter-t',text:label}),
+        h('div',{class:'bar','aria-hidden':'true'}, h('i',{style:'width:' + pct + '%'}))) : h('div',{class:'meter-t',text:label})),
+    d.items.length ? h('ol',{class:'items'}, d.items.map(function(_, idx){ return renderItem(d, idx, cur); })) :
+      (isAdding ? null : h('div',{class:'empty'}, h('strong',{text:'Day ' + d.day + ' is open'}), h('p',{class:'hint',text:'Add the places you want to visit, the meals, and the rides in between. Each stop sorts itself by time.'}))),
+    isAdding ? stopForm(d, -1) : h('div',{class:'addwrap'},
+      h('button',{class:'btn small',type:'button',text:'+ Add a stop',onclick:function(){ editing = null; adding = d.day; render(); }}),
+      total > 1 ? h('button',{class:'linkbtn rm',type:'button',text:'Remove Day ' + d.day,onclick:function(){
+        if (d.items.length && !confirm('Remove Day ' + d.day + ' and its ' + d.items.length + ' stop(s)?')) return;
+        mutate(function(){ view.days.splice(view.days.indexOf(d), 1); renumber(); view.active = Math.min(view.active, view.days.length); view.meta.days = view.days.length; $('days').value = String(view.days.length); });
+      }}) : null));
+}
+function fact(label, value){ return h('div',{class:'fact'}, h('dt',{text:label}), h('dd',{text:value})); }
+
+function render(){
+  var out = $('out'); out.textContent = '';
+  if (pending){
+    out.append(h('div',{class:'thinking'},
+      h('strong',{text:'Finding the best-fit plan for ' + pending.dest}),
+      h('div',{class:'dots','aria-hidden':'true'}, h('span'), h('span'), h('span')),
+      h('p',{class:'hint',text:'Claude is picking stops and checking the route. The first day usually appears within a minute.'})));
+    return;
+  }
+  var m = view.meta, trip = view.trip;
+  var total = tripCost(view.days);
+  var badge = view.kind === 'example' ? 'Example plan' : view.kind === 'generated' ? 'Suggested by Claude · editable' : 'Your plan';
+  var acts = [];
+  if (!hasStops()) acts.push(h('button',{class:'btn ghost small',type:'button',text:'See an example',onclick:function(){
+    view = {kind:'example', meta:EXAMPLE.meta, trip:EXAMPLE.trip, days:JSON.parse(JSON.stringify(EXAMPLE.days)), active:1}; editing = null; adding = null; setForm(view.meta); render();
+  }}));
+  if (hasStops()) acts.push(h('button',{class:'btn ghost small',type:'button',onclick:copyPlan,text:'Copy as text'}));
+  out.append(h('div',{class:'statusbar'}, h('span',{class:'badge' + (view.kind === 'generated' ? ' live' : ''),text:badge}), h('div',{class:'actions'}, acts)));
+
+  if (showCopy){
+    var ta = h('textarea',{class:'copybox',readonly:true,'aria-label':'Itinerary text'}); ta.value = showCopy;
+    out.append(h('div',{class:'field'}, h('span',{class:'hint',text:'Your browser blocked automatic copying. Select the text below and copy it.'}), ta));
+    setTimeout(function(){ ta.focus(); ta.select(); }, 0);
+  }
+
+  var counts = stopCounts(view.days);
+  var titleIn = h('input',{class:'titlein',type:'text',value:trip.title || '',maxlength:'80',placeholder:'Name your trip','aria-label':'Trip name'});
+  titleIn.addEventListener('input', function(){ trip.title = titleIn.value; touch(); });
+  var left = m.budget > 0 ? m.budget * view.days.length - total : null;
+  out.append(h('section',{class:'ticket'},
+    h('div',{class:'flag','aria-hidden':'true'}, h('i'), h('i'), h('i')),
+    h('div',{class:'ticket-main'},
+      h('div',{class:'route',text:m.dest + ' · ' + view.days.length + (view.days.length === 1 ? ' day' : ' days') + (m.month && m.month !== 'Any time' ? ' · ' + m.month : '')}),
+      h('h2',null, titleIn),
+      trip.summary ? h('p',{class:'summary',text:trip.summary}) : null),
+    h('div',{class:'ticket-div','aria-hidden':'true'}),
+    h('div',{class:'ticket-sub'},
+      h('dl',{class:'facts'},
+        fact('Per person', money(total, m.currency)),
+        m.travelers > 1 ? fact('Group of ' + m.travelers, money(total * m.travelers, m.currency)) : null,
+        left != null ? fact(left >= 0 ? 'Budget left' : 'Over budget', money(Math.abs(left), m.currency)) : null,
+        trip.bestTime ? fact('Season', trip.bestTime) : null),
+      counts.length ? h('div',{class:'stops',role:'list','aria-label':'Stops by type'}, counts.map(function(c){
+        return h('span',{class:'stoptag',role:'listitem'}, pin(c.cat), CATS[c.cat] + ' ×' + c.n);
+      })) : null,
+      trip.tips.length ? h('ul',{class:'tips'}, trip.tips.map(function(t){ return h('li',{text:t}); })) : null)));
+
+  if (!activeDay()) view.active = view.days[0] ? view.days[0].day : 1;
+  var tabs = view.days.map(function(d){
+    return h('button',{class:'tab ' + dayClass(d.day),type:'button',role:'tab',id:'tab-' + d.day,'aria-selected':String(d.day === view.active),
+      'aria-controls':'panel-' + d.day,onclick:function(){ view.active = d.day; editing = null; adding = null; render(); },text:'Day ' + d.day});
+  });
+  if (view.days.length < 14) tabs.push(h('button',{class:'tab add',type:'button',text:'+ Add day',onclick:function(){
+    mutate(function(){ view.days.push({day:view.days.length + 1, theme:'', items:[]}); view.active = view.days.length; view.meta.days = view.days.length; $('days').value = String(Math.min(10, view.days.length)); adding = null; editing = null; });
+  }}));
+  out.append(h('div',{class:'tabs',role:'tablist','aria-label':'Days'}, tabs));
+  var cur = activeDay();
+  if (cur) out.append(renderDay(cur, m, view.days.length));
+  if (busy) out.append(h('p',{class:'stream-note',text:'Still planning. More days will appear here.'}));
+  if (notice) out.append(h('p',{class:'msg',text:notice}));
+
+  out.append(h('p',{class:'foot',text:'Costs are your own planning estimates per person. Count lodging, food, activities, local/inter-island transport and common fees. International airfare is excluded. Prices, schedules and road/sea conditions can change, so confirm before booking.'}));
+}
+
+/* ---------- copy ---------- */
+function planText(){
+  var m = view.meta, lines = [];
+  lines.push((view.trip && view.trip.title) || m.dest);
+  if (view.trip && view.trip.summary) lines.push(view.trip.summary);
+  lines.push('');
+  view.days.forEach(function(d){
+    lines.push('DAY ' + d.day + (d.theme ? ': ' + d.theme : '') + ' (' + money(dayCost(d), m.currency) + ' per person)');
+    d.items.forEach(function(i){ lines.push('  ' + (i.time || '--:--') + '  ' + i.title + (i.area ? ' (' + i.area + ')' : '') + ' - ' + (i.cost > 0 ? money(i.cost, m.currency) : 'free')); });
+    lines.push('');
+  });
+  return lines.join('\n');
+}
+function copyPlan(){
+  var text = planText(); showCopy = '';
+  var ok = navigator.clipboard && navigator.clipboard.writeText ? navigator.clipboard.writeText(text) : Promise.reject();
+  ok.then(function(){ notice = 'Copied to your clipboard.'; render(); setTimeout(function(){ notice = ''; render(); }, 2500); })
+    .catch(function(){ showCopy = text; render(); });
+}
+
+/* ---------- optional Claude suggestions ---------- */
+var ERR = {
+  not_granted:'Claude access was declined for this page, so suggestions are unavailable. Your own planning still works.',
+  sampling_disabled:'Claude is not available on this account.',
+  capability_disabled:'Claude is not available in this view.',
+  not_declared:'Claude is not available in this view.',
+  rate_limited:'You have reached a usage limit. Try again in a few minutes.',
+  session_expired:'Your session expired. Sign in again, then retry.',
+  refused:'Claude could not plan that request. Change the destination or notes and try again.',
+  invalid_json:'The reply could not be read. Try again.',
+  empty_completion:'Claude returned nothing. Try again with a simpler request.',
+  prompt_too_large:'The request was too long. Shorten the notes and try again.'
+};
+function setBusy(b){
+  busy = b;
+  $('go').disabled = b; $('ai').disabled = b;
+  $('stop').hidden = !b;
+}
+function applyReply(text, f){
+  var r = parseReply(text);
+  if (!r.trip && !r.days.length) return false;
+  pending = null;
+  view = {kind:'generated', meta:f, trip:r.trip || {title:f.dest, summary:'', bestTime:'', tips:[]}, days:r.days, active:r.days[0] ? r.days[0].day : 1};
+  editing = null; adding = null;
+  render();
+  return true;
+}
+async function suggest(){
+  if (!sample || busy) return;
+  if (hasStops() && !confirm('Replace your current plan with a Claude suggestion?')) return;
+  var f = readForm();
+  say(''); notice = ''; showCopy = '';
+  var before = view;
+  ctl = new AbortController();
+  setBusy(true);
+  pending = f; render();
+  var got = false;
+  try {
+    var res = await sample(buildPrompt(f), {
+      signal: ctl.signal, cache: false,
+      onText: function(u){ if (applyReply(u.text, f)) got = true; render(); }
+    });
+    got = applyReply(res.text, f) || got;
+    if (!got){ pending = null; view = before; say(ERR.invalid_json, true); }
+    else {
+      notice = view.days.length < f.days || res.truncated ? 'Only ' + view.days.length + ' of ' + f.days + ' days came back. You can add the rest yourself.' : '';
+      save();
+    }
+  } catch (e){
+    var code = e && e.code;
+    if (e && e.text) got = applyReply(e.text, f) || got;
+    if (!got){ pending = null; view = before; }
+    if (code === 'cancelled'){ say(got ? 'Stopped. Showing the days planned so far.' : 'Stopped.'); }
+    else say(ERR[code] || 'The connection dropped. ' + (got ? 'The days below were planned before it stopped.' : 'Your previous plan is still here.'), true);
+    if (got) save();
+  } finally {
+    pending = null; ctl = null; setBusy(false); render();
+  }
+}
+
+/* ---------- wiring ---------- */
+$('days').addEventListener('change', function(){ resizeDays(parseInt($('days').value, 10) || 3); syncMeta(); render(); });
+['destSel','month','party','travelers','budget','currency'].forEach(function(id){
+  $(id).addEventListener('input', function(){ syncMeta(); render(); });
+});
+$('plan').addEventListener('submit', function(e){
+  e.preventDefault();
+  if (hasStops() && !confirm('Start a new plan? Your current stops will be cleared.')) return;
+  say(''); notice = ''; showCopy = '';
+  var f = readForm(); newPlan(f); save(); render();
+});
+$('ai').addEventListener('click', suggest);
+$('stop').addEventListener('click', function(){ if (ctl) ctl.abort(); });
+
+/* ---------- restore and start ---------- */
+try {
+  var saved = JSON.parse(localStorage.getItem(STORE) || 'null');
+  if (saved && saved.view && saved.view.meta && knownDest(saved.view.meta.dest) && Array.isArray(saved.view.days) && saved.view.days.length){
+    var sv = saved.view;
+    view = {kind:sv.kind === 'generated' ? 'generated' : 'mine', meta:sv.meta, trip:Object.assign(blankTrip(), sv.trip || {}), days:sv.days, active:1};
+    view.days.forEach(function(d){ d.items = (d.items || []).map(normItem).filter(Boolean); d.theme = d.theme || ''; });
+    setForm(view.meta);
+  }
+} catch (e) {}
+if (!view) newPlan(readForm());
+
+render();
+(async function(){
+  try { sample = window.claude && window.claude.use ? await window.claude.use('sample') : null; } catch (e) { sample = null; }
+  if (sample){ $('ai').hidden = false; $('aiOpts').hidden = false; }
+})();
+})();
+</script>
+
+</body></html>
