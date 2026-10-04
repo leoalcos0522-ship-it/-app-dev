@@ -254,6 +254,30 @@ input[type=text].themein:hover{border-bottom-color:var(--dc)}
 .stopform .grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px}
 .stopform .actions .btn:first-child{flex:0 0 auto}
 .item.editing{display:block;padding-bottom:0}
+
+.recs{border:1px solid var(--line);border-radius:16px;background:var(--surface);padding:18px;display:grid;gap:14px}
+.recs-h{display:flex;justify-content:space-between;align-items:center}
+.recs-h h2{font:700 1.3rem/1.2 var(--font-display)}
+.recs-grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.rec{border:1.5px solid var(--line);border-radius:12px;padding:14px;display:grid;gap:8px;align-content:start;background:var(--bg)}
+.rec:first-child{border-color:var(--blue)}
+.rec h3{font:700 1.25rem/1.15 var(--font-display)}
+.rec-rank{font:500 10.5px/1 var(--font-mono);letter-spacing:.09em;text-transform:uppercase;color:var(--red)}
+.why{list-style:none;margin:0;padding:0;display:grid;gap:4px;font-size:13px}
+.why li{position:relative;padding-left:18px}
+.why li::before{position:absolute;left:0;font-weight:800}
+.why .ok::before{content:"✓";color:var(--green)} .why .no::before{content:"!";color:var(--danger)}
+.rec .btn{justify-self:start;margin-top:4px}
+.wavetext{position:relative;isolation:isolate;margin-top:-6px;padding:52px 24px 18px;background:linear-gradient(var(--sea3),var(--sea3)) 0 26px/100% calc(100% - 26px) no-repeat}
+.wavetext::before,.wavetext::after{content:"";position:absolute;left:0;right:0;height:30px;--w:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 30'%3E%3Cpath d='M0 16 Q15 2 30 16 T60 16 T90 16 T120 16 V30 H0Z'/%3E%3C/svg%3E");-webkit-mask:var(--w) repeat-x 0 0/120px 30px;mask:var(--w) repeat-x 0 0/120px 30px}
+.wavetext::before{top:-4px;background:var(--sea3);z-index:-1}
+.wavetext::after{top:-14px;background:var(--sea2);opacity:.8;z-index:-2;-webkit-mask-position:60px 0;mask-position:60px 0}
+@media (prefers-reduced-motion:no-preference){
+  .wavetext::before{animation:drift 9s linear infinite}
+  .wavetext::after{animation:drift2 13s linear infinite}
+  @keyframes drift{to{-webkit-mask-position:-120px 0;mask-position:-120px 0}}
+  @keyframes drift2{from{-webkit-mask-position:60px 0;mask-position:60px 0}to{-webkit-mask-position:180px 0;mask-position:180px 0}}
+}
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
@@ -283,7 +307,7 @@ input[type=text].themein:hover{border-bottom-color:var(--dc)}
         <ellipse cx="300" cy="64" rx="48" ry="11"/><ellipse cx="330" cy="55" rx="30" ry="11"/>
         <ellipse cx="760" cy="44" rx="42" ry="10"/><ellipse cx="786" cy="37" rx="26" ry="9"/>
       </g>
-      <g class="sun" transform="translate(1040 160)">
+      <g class="sun" transform="translate(1040 138)">
         <use href="#rayL"/><use href="#rayL" transform="rotate(45)"/><use href="#rayL" transform="rotate(90)"/><use href="#rayL" transform="rotate(135)"/>
         <use href="#rayL" transform="rotate(180)"/><use href="#rayL" transform="rotate(225)"/><use href="#rayL" transform="rotate(270)"/><use href="#rayL" transform="rotate(315)"/>
         <use href="#rayS" transform="rotate(22.5)"/><use href="#rayS" transform="rotate(67.5)"/><use href="#rayS" transform="rotate(112.5)"/><use href="#rayS" transform="rotate(157.5)"/>
@@ -302,7 +326,7 @@ input[type=text].themein:hover{border-bottom-color:var(--dc)}
       </g>
       <rect y="208" width="1200" height="92" class="sea1"/>
       <path class="sea2" d="M0 216 q40 -12 80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 V300 H0Z"/>
-      <g transform="translate(830 218)">
+      <g transform="translate(830 192)">
         <path class="outr" d="M-52 -3 L-98 8 M52 -3 L98 8"/>
         <path class="outr" d="M-114 9 H-84 M84 9 H114" style="stroke-width:6"/>
         <path class="hull" d="M-64 -2 Q0 22 64 -2 L50 -14 L-50 -14Z"/>
@@ -367,16 +391,18 @@ input[type=text].themein:hover{border-bottom-color:var(--dc)}
         <span class="hint">Your day meters compare each day's stops against this. Count lodging, food, activities, local transport and fees. International airfare is excluded.</span>
       </div>
 
+      <div class="field">
+        <span class="lbl" id="pace-l">Pace</span>
+        <div class="seg" role="radiogroup" aria-labelledby="pace-l" id="pace"></div>
+      </div>
+      <div class="field">
+        <span class="lbl" id="int-l">Interests</span>
+        <div class="chips" id="interests" role="group" aria-labelledby="int-l"></div>
+        <span class="hint">Pick what you enjoy, then ask for recommendations.</span>
+      </div>
+
       <details class="more" id="aiOpts" hidden>
-        <summary>Preferences for Claude suggestions</summary>
-        <div class="field">
-          <span class="lbl" id="pace-l">Pace</span>
-          <div class="seg" role="radiogroup" aria-labelledby="pace-l" id="pace"></div>
-        </div>
-        <div class="field">
-          <span class="lbl" id="int-l">Interests</span>
-          <div class="chips" id="interests" role="group" aria-labelledby="int-l"></div>
-        </div>
+        <summary>Notes for Claude suggestions</summary>
         <div class="field">
           <label class="lbl" for="notes">Anything else</label>
           <textarea id="notes" maxlength="400" placeholder="Vegetarian, travelling with a grandparent, must see a waterfall"></textarea>
@@ -384,7 +410,8 @@ input[type=text].themein:hover{border-bottom-color:var(--dc)}
       </details>
 
       <div class="actions">
-        <button class="btn" type="submit" id="go">Start a new plan</button>
+        <button class="btn" type="submit" id="rec">Recommend trips for me</button>
+        <button class="btn ghost" type="button" id="go">Start a new plan</button>
         <button class="btn ghost" type="button" id="ai" hidden>Suggest with Claude</button>
         <button class="btn ghost" type="button" id="stop" hidden>Stop</button>
       </div>
@@ -645,9 +672,116 @@ function buildPrompt(f){
 }
 
 
+/* ---------- built-in destination knowledge: powers recommendations and auto-filled itineraries ---------- */
+function S(t, ti, ar, c, d, co, n){ return {time:t, title:ti, area:ar, category:c, duration:d, cost:co, note:n}; }
+var PLACES = {
+  'Cebu, Philippines':{tags:['Food & markets','History','Nature & hikes','Culture & art','Adventure sports','Nightlife','Shopping','Local experiences'],cost:3000,stay:900,crowd:2,best:['January','February','March','April','May'],avoid:['September','October'],
+    blurb:'Old-city heritage, lechon, canyon water and sardine shoals within easy reach.',days:EXAMPLE.days.map(function(d){ return {theme:d.theme, items:d.items.filter(function(i){ return i.category !== 'stay'; })}; })},
+  'Bohol, Philippines':{tags:['Beaches & islands','Nature & hikes','Photography','Local experiences','History','Adventure sports'],cost:3200,stay:1000,crowd:2,best:['January','February','March','April','May'],avoid:['September','October','November'],
+    blurb:'Chocolate Hills, tarsiers, river lunches and Panglao island hopping.',days:[
+    {theme:'Countryside loop',items:[S('08:00','Baclayon Church','Baclayon','culture','45 min',50,'One of the oldest stone churches in the country. Dress modestly.'),S('09:30','Blood Compact Shrine','Tagbilaran','sight','30 min',0,'A quick roadside stop on the way east.'),S('11:00','Loboc River cruise lunch','Loboc','food','1.5 h',550,'Buffet lunch on a floating restaurant with live music.'),S('13:00','Philippine Tarsier Sanctuary','Corella','nature','1 h',150,'Keep voices low and no flash. The tarsiers are shy.'),S('14:30','Man-made forest','Bilar','sight','30 min',0,'A tunnel of mahogany trees. Good for photos.'),S('15:30','Chocolate Hills viewpoint','Carmen','nature','1.5 h',100,'Climb the stairs at the main complex for the full view.')]},
+    {theme:'Panglao island hopping',items:[S('07:00','Island hopping: Balicasag and Virgin Island','Alona Beach','nature','5 h',1100,'Shared boat. Go early for calm water and clear snorkeling.'),S('12:30','Seafood lunch on Virgin Island','Panglao','food','1 h',400,'Pay the island fee at the beach. Bring cash.'),S('15:30','Alona Beach','Panglao','nature','2 h',0,'Free time to swim or rent a mask and fins.'),S('18:00','Grilled seafood dinner','Alona Beach','food','1.5 h',550,'Pick fish by weight from the beachfront stalls.')]},
+    {theme:'Caves and slow Panglao',items:[S('08:30','Hinagdanan Cave','Dauis','nature','1 h',100,'A cave with a swimming pool. Wear non-slip shoes.'),S('10:00','Dauis Church','Dauis','culture','45 min',0,'Look for the painted ceiling and the well with fresh water inside.'),S('12:00','Lunch at a farm cafe','Dauis','food','1.5 h',450,'Organic dishes and local ube desserts.'),S('15:00','Pasalubong shopping','Tagbilaran','shop','1.5 h',300,'Peanut kisses and calamay make easy gifts.')]}]},
+  'El Nido, Palawan, Philippines':{tags:['Beaches & islands','Nature & hikes','Photography','Adventure sports','Quiet/less-crowded places'],cost:4200,stay:1600,crowd:3,best:['December','January','February','March','April','May'],avoid:['August','September','October'],
+    blurb:'Limestone cliffs, hidden lagoons and some of the best island hopping in the country.',days:[
+    {theme:'Island hopping Tour A',items:[S('08:30','Island hopping Tour A','El Nido town','nature','7 h',1600,'Small and Big Lagoon, Secret Lagoon and Shimizu. Includes lunch. Check sea conditions that morning.'),S('17:30','Sunset at Las Cabanas Beach','Corong-Corong','nature','1.5 h',0,'A short tricycle ride from town. Arrive before 5:00 for a good spot.'),S('19:00','Dinner in town','El Nido town','food','1.5 h',600,'Try fresh grilled fish and kinilaw.')]},
+    {theme:'Tour C and hidden beaches',items:[S('08:30','Island hopping Tour C','El Nido town','nature','7 h',1600,'Hidden Beach, Matinloc and Helicopter Island. Includes lunch.'),S('17:00','Rest and shower','El Nido town','rest','1.5 h',0,'Salt and sun add up. Pace yourself.'),S('19:00','Dinner and drinks','El Nido town','night','2 h',700,'Beachside bars along the main strip.')]},
+    {theme:'Nacpan and the peak',items:[S('06:30','Taraw Peak viewpoint hike','El Nido town','nature','2 h',200,'Short and steep. Go early before the heat.'),S('09:30','Tricycle to Nacpan Beach','Nacpan','transport','1 h',350,'Ask the driver to wait or arrange the ride back.'),S('10:30','Nacpan and Calitang Beach','Nacpan','nature','4 h',0,'Four kilometers of sand and very few crowds.'),S('15:30','Massage','El Nido town','rest','1 h',600,'A good ending for a beach day.')]}]},
+  'Coron, Palawan, Philippines':{tags:['Beaches & islands','Nature & hikes','Adventure sports','Photography','Wellness'],cost:3800,stay:1400,crowd:2,best:['December','January','February','March','April','May'],avoid:['August','September','October'],
+    blurb:'Shipwreck dives, Kayangan Lake and volcanic hot springs.',days:[
+    {theme:'Town and hot springs',items:[S('05:30','Mount Tapyas sunrise climb','Coron town','nature','1.5 h',50,'About 700 steps. Bring water.'),S('09:00','Breakfast in town','Coron town','food','1 h',250,'Local cafes serve silog and coffee.'),S('14:00','Maquinit Hot Springs','Coron','rest','2 h',300,'A saltwater hot spring. Best around late afternoon.'),S('18:30','Seafood dinner','Coron town','food','1.5 h',600,'Order fish and squid by the kilo.')]},
+    {theme:'Lakes and wrecks',items:[S('08:00','Island hopping: Kayangan Lake, Twin Lagoon, Skeleton Wreck','Coron','nature','8 h',1800,'Includes lunch and permits. Bring reef-safe sunscreen.'),S('17:30','Sunset at the pier','Coron town','sight','1 h',0,'Boats return around this time.'),S('19:00','Dinner and rest','Coron town','food','1.5 h',500,'Early night. Tomorrow is another boat day.')]},
+    {theme:'Far islands',items:[S('08:00','Island hopping: Malcapuya and Banana Island','Coron','nature','8 h',1700,'Longer boat ride with white sand beaches. Includes lunch.'),S('17:30','Pasalubong shopping','Coron town','shop','1 h',400,'Cashew nuts and dried fish are popular.'),S('19:00','Farewell dinner','Coron town','food','1.5 h',600,'Try the local adobo and lechon kawali.')]}]},
+  'Boracay, Aklan, Philippines':{tags:['Beaches & islands','Nightlife','Shopping','Wellness','Adventure sports','Food & markets'],cost:4500,stay:1800,crowd:3,best:['November','December','January','February','March','April','May'],avoid:['July','August','September'],
+    blurb:'Powder-white sand, sunset sailing and nightlife in one easy island.',days:[
+    {theme:'White Beach and sunset',items:[S('09:00','White Beach stroll','Station 2','nature','2 h',0,'Walk the full length of the beach in the cooler morning.'),S('12:00','Lunch at D\'Mall','Station 2','food','1.5 h',450,'Plenty of casual restaurants.'),S('14:30','Puka Shell Beach','North Boracay','nature','2 h',250,'Quieter and cleaner side of the island. Tricycle included.'),S('17:30','Sunset paraw sailing','White Beach','nature','1 h',600,'Book with a licensed operator on the beach.'),S('19:30','Paluto dinner at D\'Talipapa','Station 2','food','1.5 h',700,'Choose seafood at the market and have it cooked.')]},
+    {theme:'Island hopping and nightlife',items:[S('09:00','Island hopping','Station 2','nature','4 h',1000,'Snorkel stops plus a beach lunch.'),S('14:30','Mount Luho viewpoint','Yapak','sight','1.5 h',150,'Highest point on the island. Go before sunset.'),S('20:00','Nightlife stroll','Station 1 to 2','night','3 h',700,'Beach bars with live music and fire dancers.')]},
+    {theme:'Slow beach day',items:[S('09:00','Willy\'s Rock','Station 1','sight','45 min',0,'The small shrine rock is best photographed in the morning.'),S('10:30','Spa massage','White Beach','rest','1.5 h',800,'Book a beachfront session.'),S('13:00','Late lunch','Station 2','food','1.5 h',450,'Try the grilled fish and calamansi juice.'),S('15:30','Souvenir shopping','D\'Mall','shop','1.5 h',400,'Ask for the price before buying.')]}]},
+  'Siargao, Philippines':{tags:['Beaches & islands','Adventure sports','Nature & hikes','Nightlife','Photography','Quiet/less-crowded places','Local experiences'],cost:3600,stay:1300,crowd:2,best:['March','April','May','August','September','October','November'],avoid:['December','January'],
+    blurb:'Surf breaks, tidal pools and palm-lined roads in the surfing capital.',days:[
+    {theme:'Cloud 9 and the boardwalk',items:[S('07:00','Cloud 9 boardwalk','General Luna','sight','1 h',50,'Small entrance fee. Watch the surfers from the platform.'),S('08:30','Surf lesson','General Luna','nature','2 h',800,'Ask for a beginner-friendly break.'),S('12:00','Lunch','General Luna','food','1 h',350,'Smoothie bowls and local seafood.'),S('18:30','Dinner','General Luna','food','1.5 h',500,'Plenty of casual spots near the main road.'),S('20:30','Bar crawl','General Luna','night','2 h',500,'The island is lively but low-key.')]},
+    {theme:'Island hopping',items:[S('08:30','Island hopping: Naked, Daku and Guyam','General Luna','nature','5 h',1000,'Boat, snorkel and a simple lunch on Daku.'),S('15:00','Rest at the hotel','General Luna','rest','2 h',0,'Sun and salt wear you out.'),S('18:00','Sunset and dinner','General Luna','food','2 h',550,'Beachside grills.')]},
+    {theme:'Pools and palms',items:[S('08:00','Coconut Road drive','Dapa to Del Carmen','sight','1 h',300,'Rent a scooter or hire a driver. Stop for photos.'),S('10:00','Magpupungko Rock Pools','Pilar','nature','2.5 h',100,'Check tide tables. Pools are best at low tide.'),S('13:30','Lunch near Pilar','Pilar','food','1 h',350,'Simple eateries along the road.'),S('15:30','Tayangban Cave Pool','Pilar','nature','1.5 h',200,'Cliff jumps and a cave pool. Wear sandals.')]}]},
+  'Baguio, Philippines':{tags:['Food & markets','Culture & art','Nature & hikes','Shopping','Photography','Local experiences','Wellness'],cost:2300,stay:700,crowd:2,best:['November','December','January','February','March'],avoid:['July','August','September'],
+    blurb:'Cool pine-covered highlands with art, strawberries and a lively market.',days:[
+    {theme:'Pine city highlights',items:[S('08:00','Burnham Park','Downtown','sight','1.5 h',50,'Rent a swan boat on the lake if you like.'),S('09:30','Baguio Cathedral','Session Road','culture','45 min',0,'Pink twin spires. Dress modestly.'),S('10:30','Baguio City Market','Downtown','shop','1.5 h',300,'Strawberry jam, peanut brittle and woven goods.'),S('12:30','Lunch','Session Road','food','1 h',350,'Try the local pinikpikan or a simple pasta place.'),S('14:00','Camp John Hay','Camp John Hay','nature','2 h',100,'Walk the pine trails. Entrance varies by area.'),S('18:30','Dinner at a garden cafe','Baguio','food','1.5 h',600,'Book ahead on weekends.')]},
+    {theme:'Art and strawberries',items:[S('09:00','BenCab Museum','Tuba','culture','2 h',200,'Contemporary Philippine art and a cafe with a view.'),S('11:30','Tam-awan Village','Pinsao','culture','1.5 h',100,'Reconstructed Cordillera huts and artists at work.'),S('14:00','Strawberry picking','La Trinidad','nature','1.5 h',250,'Season runs roughly December to April.'),S('16:30','Mines View Park','Baguio','sight','1 h',50,'Go earlier in the day for clear views.'),S('19:00','Night market','Harrison Road','shop','2 h',500,'Cheap clothes, snacks and souvenirs.')]}]},
+  'Vigan, Ilocos Sur, Philippines':{tags:['History','Food & markets','Culture & art','Photography','Quiet/less-crowded places','Local experiences','Shopping'],cost:2200,stay:800,crowd:1,best:['November','December','January','February','March','April'],avoid:['August','September'],
+    blurb:'A preserved Spanish-era town with cobblestones, calesas and empanada.',days:[
+    {theme:'Calle Crisologo and the old town',items:[S('08:00','Calle Crisologo walk','Vigan','sight','1.5 h',0,'Go early. The street closes to cars on certain days.'),S('09:30','Bantay Bell Tower','Bantay','sight','45 min',0,'Climb for a rooftop view of the town.'),S('10:30','Crisologo Museum','Vigan','culture','1 h',30,'A heritage house with family belongings.'),S('12:00','Empanada and okoy lunch','Plaza Burgos','food','1 h',250,'Try the Vigan empanada with longganisa.'),S('14:00','Pagburnayan pottery','Vigan','culture','1 h',0,'Watch potters at work. Pieces cost extra.'),S('16:00','Calesa ride','Vigan','sight','1 h',150,'Per person share. Negotiate before riding.')]},
+    {theme:'Paoay and the dunes',items:[S('08:00','Ride to Paoay','Vigan','transport','2 h',200,'Bus or van from the terminal.'),S('10:00','Paoay Church','Paoay','culture','1 h',0,'A UNESCO World Heritage baroque church.'),S('12:00','Lunch in Laoag area','Laoag','food','1 h',350,'Try bagnet and pinakbet.'),S('14:00','Paoay Sand Dunes 4x4 and sandboarding','Paoay','nature','2 h',600,'Shared jeep and board. Bring a hat.'),S('17:00','Ride back to Vigan','Laoag','transport','2 h',200,'Check the last trip time.')]}]},
+  'Sagada, Mountain Province, Philippines':{tags:['Nature & hikes','Culture & art','Quiet/less-crowded places','Photography','Adventure sports','Local experiences'],cost:2100,stay:600,crowd:1,best:['November','December','January','February','March','April','May'],avoid:['July','August','September'],
+    blurb:'Hanging coffins, caves, cool air and sunrise over the sea of clouds.',days:[
+    {theme:'Hanging coffins and caves',items:[S('08:30','Echo Valley and the hanging coffins','Sagada','culture','2 h',350,'Register and hire a local guide. Respect burial sites.'),S('11:30','Lunch','Sagada','food','1 h',350,'Try yogurt, rice and local vegetables.'),S('13:30','Sumaguing Cave','Sagada','nature','3 h',600,'Guide required. Wear shoes with grip and clothes that can get wet.'),S('17:30','Lemon pie and coffee','Sagada','food','1 h',300,'A classic stop for hikers.')]},
+    {theme:'Sunrise and waterfalls',items:[S('04:30','Kiltepan sunrise','Kiltepan','nature','2.5 h',350,'Bring a jacket. Share a jeepney to save.'),S('09:00','Bomod-ok Falls hike','Sagada','nature','4 h',500,'Includes guide fee. Bring water and snacks.'),S('14:00','Sagada pottery','Sagada','culture','1 h',0,'Watch potters work. Pieces cost extra.'),S('18:00','Dinner at a local inn','Sagada','food','1.5 h',450,'Order early since dishes are cooked fresh.')]}]},
+  'Puerto Princesa, Palawan, Philippines':{tags:['Nature & hikes','Beaches & islands','Local experiences','Food & markets','Photography'],cost:3200,stay:1000,crowd:2,best:['November','December','January','February','March','April','May'],avoid:['August','September','October'],
+    blurb:'Underground river, Honda Bay and an easy gateway to northern Palawan.',days:[
+    {theme:'Underground River',items:[S('07:30','Puerto Princesa Underground River tour','Sabang','nature','8 h',2200,'Permit and boat are usually bundled. Book a few days ahead.'),S('17:00','Baywalk','Puerto Princesa','sight','1 h',0,'Evening stroll as the city cools down.'),S('19:00','Dinner at a Baywalk seafood spot','Baywalk','food','1.5 h',700,'Order grilled fish and tamilok if you are adventurous.')]},
+    {theme:'Honda Bay and town',items:[S('08:30','Honda Bay island hopping','Santa Lourdes','nature','6 h',1100,'Starfish Island and Luli. Bring a mask for snorkeling.'),S('15:00','Palawan Wildlife Rescue and Conservation Center','Puerto Princesa','nature','1.5 h',150,'Guided tour with crocodiles and birds.'),S('17:30','Cashew pasalubong','Puerto Princesa','shop','1 h',300,'Local cashews and dried fish.'),S('19:00','Dinner at a local favorite','Puerto Princesa','food','1.5 h',500,'Try Palawan-style sinigang.')]}]},
+  'Batanes, Philippines':{tags:['Photography','Nature & hikes','Culture & art','Quiet/less-crowded places','Local experiences'],cost:5500,stay:2200,crowd:1,best:['March','April','May','June'],avoid:['July','August','September','October'],
+    blurb:'Rolling green hills, stone houses and sea cliffs at the northern edge of the country.',days:[
+    {theme:'Basco and the north',items:[S('08:00','Naidi Hills Lighthouse','Basco','sight','1 h',0,'Go early for soft light and wind-free air.'),S('09:30','Chawa View Deck','Basco','nature','1 h',0,'Cliffside view over the Pacific.'),S('11:00','Valugan Boulder Beach','Basco','nature','1 h',0,'Rounded boulders along a wild coast.'),S('12:30','Lunch','Basco','food','1 h',400,'Try uvud balls and flying fish.'),S('14:00','Honesty Coffee Shop','Ivana','local','30 min',100,'Pay yourself. A famous local honor system.')].map(function(i){ if (i.category === 'local') i.category = 'culture'; return i; })},
+    {theme:'Sabtang island',items:[S('07:00','Boat to Sabtang','Ivana Port','transport','1 h',300,'Sea conditions can cancel boats. Keep a flexible day.'),S('09:00','Sabtang island tour','Sabtang','culture','6 h',1500,'Stone houses, Chavayan village and the beaches.'),S('16:00','Boat back to Batan','Sabtang','transport','1 h',300,'Last boat leaves in the afternoon.')]},
+    {theme:'Rolling hills of Batan',items:[S('08:30','Mahatao Church and Ivatan houses','Mahatao','culture','1.5 h',0,'Traditional stone houses and a hilltop chapel.'),S('10:30','Tukon Church','Basco','culture','45 min',0,'A small chapel with a view.'),S('12:00','Lunch','Basco','food','1 h',400,'Try coconut crab if it is in season and legally sourced.'),S('14:00','Pasalubong shopping','Basco','shop','1 h',400,'Vakul hats and Ivatan woven crafts.')]}]},
+  'Manila, Philippines':{tags:['History','Food & markets','Culture & art','Nightlife','Shopping','Local experiences'],cost:3000,stay:1200,crowd:3,best:['December','January','February','March'],avoid:['July','August','September'],
+    blurb:'Spanish-era Intramuros, Binondo food crawls, museums and city nightlife.',days:[
+    {theme:'Intramuros and Binondo',items:[S('08:30','Fort Santiago','Intramuros','sight','1.5 h',75,'Go early. Fewer crowds and cooler air.'),S('10:15','Manila Cathedral','Intramuros','culture','45 min',0,'Dress modestly.'),S('11:15','San Agustin Church and Museum','Intramuros','culture','1 h',200,'A UNESCO World Heritage baroque church.'),S('13:00','Binondo food crawl','Binondo','food','2.5 h',600,'The oldest Chinatown in the world. Try dumplings and hopia.'),S('16:30','Rizal Park','Ermita','sight','1 h',0,'Walk the Japanese Garden and Chinese Garden.'),S('18:00','Manila Bay sunset','Roxas Boulevard','sight','1 h',0,'The famous sunset over the bay.')]},
+    {theme:'Museums and nights',items:[S('09:30','National Museum of Fine Arts','Ermita','culture','2 h',0,'Free admission. Look for Spoliarium.'),S('12:00','Lunch','Ermita','food','1 h',350,'Casual eateries nearby.'),S('14:00','Ayala Museum','Makati','culture','1.5 h',650,'Dioramas of Philippine history and gold artifacts.'),S('18:30','Dinner at Greenbelt','Makati','food','1.5 h',900,'Many cuisines in one area.'),S('20:30','Poblacion nightlife','Makati','night','3 h',800,'Bars and live music. Take a ride-hailing car back.')]}]}
+};
+function monthsText(list){ return list.length ? list[0] + ' to ' + list[list.length - 1] : ''; }
+function buildFromPlace(key, f){
+  var P = PLACES[key];
+  var perDay = {Relaxed:4, Balanced:6, Packed:8}[f.pace] || 6;
+  var stay = Math.round(P.stay * (f.travelers === 1 ? 1.6 : 1));
+  var days = [];
+  for (var i = 0; i < f.days; i++){
+    var src = P.days[i];
+    var items = src ? src.items.slice(0, perDay).map(function(o){ return Object.assign({}, o); }) : [];
+    if (items.length && i < f.days - 1) items.push(S('21:00','Lodging (estimate)',key.split(',')[0],'stay','1 night',stay,'Per person sharing a room. Rates change with season and room type.'));
+    days.push({day:i + 1, theme:src ? src.theme : 'Open day: your own picks', items:items});
+  }
+  return days;
+}
+function fillSuggested(){
+  var key = getDest();
+  if (!PLACES[key]) return;
+  var f = view.meta;
+  mutate(function(){
+    view.days = buildFromPlace(key, f); view.active = 1; editing = null; adding = null;
+    view.trip.title = view.trip.title || key.split(',')[0] + ' in ' + f.days + ' day' + (f.days === 1 ? '' : 's');
+    view.trip.bestTime = 'Best months: ' + monthsText(PLACES[key].best) + '.';
+    view.trip.summary = PLACES[key].blurb + ' Edit anything to make it yours.';
+  });
+}
+var MONTH_IDX = {};
+MONTHS.forEach(function(m, i){ MONTH_IDX[m] = i; });
+function recommend(f){
+  var picks = Object.keys(PLACES).map(function(key){
+    var P = PLACES[key], score = 0, why = [], warn = [];
+    var hit = f.interests.filter(function(t){ return P.tags.indexOf(t) > -1; });
+    if (f.interests.length){ score += hit.length * 3; if (hit.length) why.push('Matches ' + hit.slice(0, 3).join(', ')); else warn.push('Few of your interests'); }
+    if (f.budget > 0){
+      var r = f.budget / P.cost;
+      if (r >= 1){ score += 3; why.push('Typical day ~' + money(P.cost, 'PHP') + ' fits your budget'); }
+      else if (r >= .8){ score += 1; warn.push('Typical day ~' + money(P.cost, 'PHP') + ' is a little over'); }
+      else { score -= (1 - r) * 8; warn.push('Typical day ~' + money(P.cost, 'PHP') + ' is above your budget'); }
+    }
+    if (f.month !== 'Any time'){
+      if (P.best.indexOf(f.month) > -1){ score += 3; why.push(f.month + ' is a good month'); }
+      else if (P.avoid.indexOf(f.month) > -1){ score -= 4; warn.push(f.month + ' is typhoon or rainy season'); }
+    }
+    if (f.interests.indexOf('Quiet/less-crowded places') > -1){ score += 4 - P.crowd; if (P.crowd === 1) why.push('Less crowded'); }
+    if (f.days <= 2 && P.days.length > 2) score -= 1;
+    return {key:key, P:P, score:score, why:why, warn:warn};
+  });
+  picks.sort(function(a, b){ return b.score - a.score; });
+  return picks.slice(0, 3);
+}
+
 /* ---------- plan state ---------- */
 var sample = null;
 var view = null;
+var recs = null;
 var busy = false, ctl = null, pending = null, notice = '', showCopy = '', editing = null, adding = null;
 
 function blankTrip(){ return {title:'', summary:'', bestTime:'', tips:[]}; }
@@ -755,6 +889,29 @@ function render(){
       h('p',{class:'hint',text:'Claude is picking stops and checking the route. The first day usually appears within a minute.'})));
     return;
   }
+  if (recs){
+    out.append(h('section',{class:'recs',id:'recs','aria-label':'Recommended trips'},
+      h('div',{class:'recs-h'}, h('h2',{text:'Recommended for you'}), h('button',{class:'linkbtn',type:'button',text:'Hide',onclick:function(){ recs = null; render(); }})),
+      h('div',{class:'recs-grid'}, recs.map(function(r, idx){
+        var name = r.key.replace(', Philippines','');
+        return h('article',{class:'rec'},
+          h('span',{class:'rec-rank',text:idx === 0 ? 'Best match' : idx === 1 ? 'Great alternative' : 'Also consider'}),
+          h('h3',{text:name}),
+          h('p',{class:'hint',text:r.P.blurb}),
+          h('ul',{class:'why'}, r.why.map(function(t){ return h('li',{class:'ok',text:t}); }).concat(r.warn.map(function(t){ return h('li',{class:'no',text:t}); }))),
+          h('button',{class:'btn small',type:'button',text:'Build this trip',onclick:function(){
+            if (hasStops() && !confirm('Replace your current plan with a ' + name + ' trip?')) return;
+            var f = readForm(); f.dest = r.key; setForm(f); f = readForm();
+            newPlan(f); view.days = buildFromPlace(r.key, f);
+            view.trip.title = name + ' in ' + f.days + ' day' + (f.days === 1 ? '' : 's');
+            view.trip.bestTime = 'Best months: ' + monthsText(r.P.best) + '.';
+            view.trip.summary = r.P.blurb + ' Edit anything to make it yours.';
+            recs = null; touch(); render();
+            window.scrollTo({top: $('out').getBoundingClientRect().top + window.pageYOffset - 12, behavior:'smooth'});
+          }}));
+      }))));
+  }
+
   var m = view.meta, trip = view.trip;
   var total = tripCost(view.days);
   var badge = view.kind === 'example' ? 'Example plan' : view.kind === 'generated' ? 'Suggested by Claude · editable' : 'Your plan';
@@ -762,6 +919,7 @@ function render(){
   if (!hasStops()) acts.push(h('button',{class:'btn ghost small',type:'button',text:'See an example',onclick:function(){
     view = {kind:'example', meta:EXAMPLE.meta, trip:EXAMPLE.trip, days:JSON.parse(JSON.stringify(EXAMPLE.days)), active:1}; editing = null; adding = null; setForm(view.meta); render();
   }}));
+  if (!hasStops() && PLACES[getDest()]) acts.unshift(h('button',{class:'btn small',type:'button',text:'Fill with suggested stops',onclick:fillSuggested}));
   if (hasStops()) acts.push(h('button',{class:'btn ghost small',type:'button',onclick:copyPlan,text:'Copy as text'}));
   out.append(h('div',{class:'statusbar'}, h('span',{class:'badge' + (view.kind === 'generated' ? ' live' : ''),text:badge}), h('div',{class:'actions'}, acts)));
 
@@ -845,7 +1003,7 @@ var ERR = {
 };
 function setBusy(b){
   busy = b;
-  $('go').disabled = b; $('ai').disabled = b;
+  $('go').disabled = b; $('rec').disabled = b; $('ai').disabled = b;
   $('stop').hidden = !b;
 }
 function applyReply(text, f){
@@ -897,8 +1055,14 @@ $('days').addEventListener('change', function(){ resizeDays(parseInt($('days').v
 });
 $('plan').addEventListener('submit', function(e){
   e.preventDefault();
-  if (hasStops() && !confirm('Start a new plan? Your current stops will be cleared.')) return;
   say(''); notice = ''; showCopy = '';
+  recs = recommend(readForm());
+  render();
+  var el = document.getElementById('recs'); if (el && el.scrollIntoView) el.scrollIntoView({behavior:'smooth', block:'start'});
+});
+$('go').addEventListener('click', function(){
+  if (hasStops() && !confirm('Start a new plan? Your current stops will be cleared.')) return;
+  say(''); notice = ''; showCopy = ''; recs = null;
   var f = readForm(); newPlan(f); save(); render();
 });
 $('ai').addEventListener('click', suggest);
@@ -919,7 +1083,7 @@ if (!view) newPlan(readForm());
 render();
 (async function(){
   try { sample = window.claude && window.claude.use ? await window.claude.use('sample') : null; } catch (e) { sample = null; }
-  if (sample){ $('ai').hidden = false; $('aiOpts').hidden = false; }
+  if (sample){ $('ai').hidden = false; $('aiOpts').hidden = false; render(); }
 })();
 })();
 </script>
