@@ -268,7 +268,7 @@ input[type=text].themein:hover{border-bottom-color:var(--dc)}
 .why li::before{position:absolute;left:0;font-weight:800}
 .why .ok::before{content:"✓";color:var(--green)} .why .no::before{content:"!";color:var(--danger)}
 .rec .btn{justify-self:start;margin-top:4px}
-.wavetext{position:relative;isolation:isolate;margin-top:-6px;padding:36px 24px 16px;background:linear-gradient(var(--sea3),var(--sea3)) 0 26px/100% calc(100% - 26px) no-repeat}
+.wavetext{position:relative;isolation:isolate;margin-top:-6px;padding:28px 24px 14px;background:linear-gradient(var(--sea3),var(--sea3)) 0 26px/100% calc(100% - 26px) no-repeat}
 .wavetext::before,.wavetext::after{content:"";position:absolute;left:0;right:0;height:30px;--w:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 30'%3E%3Cpath d='M0 16 Q40 2 80 16 T160 16 T240 16 T320 16 V30 H0Z'/%3E%3C/svg%3E");-webkit-mask:var(--w) repeat-x 0 0/320px 30px;mask:var(--w) repeat-x 0 0/320px 30px}
 .wavetext::before{top:-4px;background:var(--sea3);z-index:-1}
 .wavetext::after{top:-14px;background:var(--sea2);opacity:.8;z-index:-2;-webkit-mask-position:160px 0;mask-position:160px 0}
@@ -297,6 +297,9 @@ input[type=text].themein:hover{border-bottom-color:var(--dc)}
 .rec-meta{font:500 10.5px/1.3 var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .why-text{font-size:13.5px}
 .rec .btn.ghost{justify-self:start}
+.wavetext{flex-direction:column;flex-wrap:nowrap;align-items:flex-start;justify-content:flex-start;gap:10px;min-height:104px}
+.wavetext .tagline{width:100%;max-width:none}
+@media (min-width:640px){.wavetext .tagline{white-space:nowrap}}
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
@@ -1357,7 +1360,14 @@ $('stop').addEventListener('click', function(){ if (ctl) ctl.abort(); });
   });
   /* same shape as the band's top edge: a 160px-period sine, crest at x = 40px, 6px high */
   var band = el.closest('.wavetext');
+  function fit(){
+    el.style.fontSize = '';
+    if (window.innerWidth < 640) return;
+    var size = 17; el.style.fontSize = size + 'px';
+    while (size > 9 && el.scrollWidth > el.clientWidth + 1){ size -= 0.5; el.style.fontSize = size + 'px'; }
+  }
   function layoutWave(){
+    fit();
     var left = band.getBoundingClientRect().left;
     letters.forEach(function(l){
       var r = l.getBoundingClientRect(), x = r.left + r.width / 2 - left;
