@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LakbayLokal — Frame Representation</title>
+<style>
+:root{
+  --bg:#EAF3FB; --surface:#FFFFFF; --fg:#0B1F4B; --muted:#4A5C80; --line:#C5D6EE;
+  --blue:#0038A8; --red:#CE1126; --yellow:#FCD116; --yellow-ink:#3A2E00; --green:#17804A;
+  --code:#F2F7FD;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#071433;--surface:#0E1F4A;--fg:#EEF3FF;--muted:#A3B4DB;--line:#26427F;--blue:#7FA3FF;--red:#FF8A93;--green:#3DD68C;--code:#0A1A42}
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif;padding:20px 16px 48px}
+.wrap{max-width:1040px;margin:0 auto;display:grid;gap:22px}
+.flag{display:grid;grid-template-columns:1fr 1fr 1fr;height:6px;border-radius:3px;overflow:hidden}
+.flag i:nth-child(1){background:#0038A8}.flag i:nth-child(2){background:#CE1126}.flag i:nth-child(3){background:#FCD116}
+header h1{margin:6px 0 4px;font-size:clamp(1.8rem,5vw,2.6rem);letter-spacing:-.03em;line-height:1.05}
+header h1 span{color:var(--red)}
+header p{margin:0;color:var(--muted);max-width:64ch}
+.kicker{font:600 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--red)}
+h2{margin:6px 0 0;font-size:1.3rem;letter-spacing:-.01em}
+.note{color:var(--muted);font-size:14px;max-width:70ch;margin:4px 0 0}
+
+/* hierarchy */
+.tree{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 20px;font:13px/1.9 var(--mono);overflow-x:auto;white-space:pre}
+.tree b{color:var(--blue)}.tree em{font-style:normal;color:var(--muted)}
+
+/* frame cards */
+.frame{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.frame-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;padding:14px 18px;border-bottom:1px solid var(--line);border-top:5px solid var(--blue)}
+.frame:nth-of-type(3n+2) .frame-h{border-top-color:var(--red)}
+.frame:nth-of-type(3n) .frame-h{border-top-color:var(--yellow)}
+.frame-h h3{margin:0;font:700 1.15rem/1.2 var(--mono)}
+.isa{font:500 12px/1 var(--mono);color:var(--muted)}
+.isa b{color:var(--fg)}
+.desc{margin:0;padding:12px 18px 0;color:var(--muted);font-size:14px}
+.tbl{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:10px}
+.tbl th{text-align:left;font:600 10.5px/1.2 var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);padding:8px 18px;background:var(--code)}
+.tbl td{padding:8px 18px;border-top:1px solid var(--line);vertical-align:top}
+.tbl td:first-child{font:600 12.5px/1.5 var(--mono);white-space:nowrap}
+.tbl td:nth-child(2){color:var(--muted)}
+code{font:12.5px var(--mono);background:var(--code);padding:1px 5px;border-radius:4px}
+.proc{display:inline-block;font:600 10px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:3px 6px;border-radius:4px;background:var(--yellow);color:var(--yellow-ink);margin-right:4px}
+.scroll{overflow-x:auto}
+
+/* instance + trace */
+.inst{background:var(--code);border:1px dashed var(--line);border-radius:12px;padding:14px 18px;font:12.5px/1.8 var(--mono);white-space:pre-wrap}
+.inst b{color:var(--blue)}
+.trace{margin:0;padding-left:22px;display:grid;gap:6px}
+.trace li::marker{font-weight:800;color:var(--red)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+@media (max-width:640px){.tbl td:first-child{white-space:normal}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="flag" aria-hidden="true"><i></i><i></i><i></i></div>
+
+  <header>
+    <span class="kicker">Frame representation</span>
+    <h1>Lakbay<span>Lokal</span></h1>
+    <p>The system's knowledge organized as frames: named concepts with slots, default values, constraints, inheritance and attached procedures. Every frame below maps to something the page actually stores or computes.</p>
+  </header>
+
+  <section>
+    <h2>Frame hierarchy (is-a and part-of)</h2>
+    <p class="note"><b>is-a</b> links pass slots and defaults down to specializations. <b>part-of</b> links show how a trip is assembled.</p>
+    <div class="tree" role="img" aria-label="Frame hierarchy"><b>Thing</b>
+├─ <b>System</b> ............................. LakbayLokal
+├─ <b>Traveler Profile</b> ................... the form on the left
+├─ <b>Place</b>
+│   ├─ <b>Destination</b> .................... one of 41 Philippine destinations in the list
+│   │   ├─ <b>Curated Destination</b> ......... 12 with built-in day ideas (Cebu, Bohol, El Nido ...)
+│   │   └─ <b>Uncurated Destination</b> ....... 29 with nearby-trip suggestions only
+│   └─ <b>Nearby Spot</b> .................... town, beach or nature stop around a destination
+├─ <b>Recommendation</b>
+│   ├─ <b>Destination Match</b>
+│   └─ <b>Nearby Trip</b>
+└─ <b>Trip</b>  <em>(my plan)</em>
+    └─ part-of ─ <b>Day</b>  (1 to 14)
+                    └─ part-of ─ <b>Stop</b>
+                                    <em>category: food | sight | nature | culture | night | rest | transport | shop | stay</em></div>
+  </section>
+
+  <section class="frame">
+    <div class="frame-h"><h3>System</h3><span class="isa">is-a: <b>Thing</b></span></div>
+    <p class="desc">The top frame. Its slots are the capabilities visible to the user.</p>
+    <div class="scroll"><table class="tbl">
+      <tr><th>Slot</th><th>Type / facet</th><th>Value</th></tr>
+      <tr><td>name</td><td>string</td><td>LakbayLokal (lakbay = journey, lokal = local)</td></tr>
+      <tr><td>scope</td><td>constraint</td><td>Philippine destinations only</td></tr>
+      <tr><td>modes</td><td>set</td><td>{ plan by hand, recommended trips, nearby trips, Claude suggestions (optional) }</td></tr>
+      <tr><td>storage</td><td>if-changed</td><td>saved to the browser (<code>lakbaylokal.v1</code>) after every edit</td></tr>
+      <tr><td>claude_available</td><td>boolean, default false</td><td>if true, shows the "Suggest with Claude" button</td></tr>
+    </table></div>
+  </section>
+
+  <section class="frame">
+    <div class="frame-h"><h3>Traveler Profile</h3><span class="isa">is-a: <b>Thing</b></span><span class="isa">part-of: <b>System</b></span></div>
+    <p class="desc">Read from the form. Changing any slot re-computes recommendations immediately.</p>
+    <div class="scroll"><table class="tbl">
+      <tr><th>Slot</th><th>Type / facet</th><th>Default · range</th></tr>
+      <tr><td>destination</td><td>instance of Destination</td><td>Cebu</td></tr>
+      <tr><td>days</td><td>integer</td><td>3 · 1 to 10 in the form, up to 14 in the plan</td></tr>
+      <tr><td>month</td><td>enum</td><td>November · January to December, or "Any time"</td></tr>
+      <tr><td>party</td><td>enum</td><td>Couple · Solo, Couple, Family with kids, Friends</td></tr>
+      <tr><td>travelers</td><td>integer</td><td>2 · 1 to 20</td></tr>
+      <tr><td>daily_budget</td><td>number per person</td><td>3,500 · excludes international airfare</td></tr>
+      <tr><td>currency</td><td>enum</td><td>PHP · PHP, SGD, USD, EUR, JPY, KRW, THB, AUD, GBP</td></tr>
+      <tr><td>pace</td><td>enum</td><td>Balanced · Relaxed = 4 stops/day, Balanced = 6, Packed = 8</td></tr>
+      <tr><td>interests</td><td>set of 12</td><td>{ Food &amp; markets, History, Nature &amp; hikes } · Beaches &amp; islands, Culture &amp; art, Nightlife, Shopping, Adventure sports, Wellness, Photography, Local experiences, Quiet/less-crowded places</td></tr>
+    </table></div>
+  </section>
+
+  <section class="frame">
+    <div class="frame-h"><h3>Destination</h3><span class="isa">is-a: <b>Place</b></span><span class="isa">specialized by: <b>Curated</b>, <b>Uncurated</b></span></div>
+    <p class="desc">A selectable place. Every destination has a name and map position. Curated destinations add the slots marked below.</p>
+    <div class="scroll"><table class="tbl">
+      <tr><th>Slot</th><th>Type / facet</th><th>Meaning</th></tr>
+      <tr><td>name</td><td>string</td><td>e.g. "Cebu, Philippines"</td></tr>
+      <tr><td>region</td><td>enum</td><td>Luzon | Palawan | Visayas | Mindanao</td></tr>
+      <tr><td>position</td><td>lat, lng</td><td>used to estimate travel time</td></tr>
+      <tr><td>island_group</td><td>string</td><td>decides road vs boat travel</td></tr>
+      <tr><td>type</td><td>enum</td><td>city | beach | nature | culture | island</td></tr>
+      <tr><td>tags *</td><td>subset of interests</td><td>what the place is good for</td></tr>
+      <tr><td>typical_cost_per_day *</td><td>PHP per person</td><td>compared with the traveler's daily budget</td></tr>
+      <tr><td>lodging_per_night *</td><td>PHP per person sharing</td><td>×1.6 when travelling solo</td></tr>
+      <tr><td>crowd_level *</td><td>1 quiet · 2 · 3 busy</td><td>favors quiet places when requested</td></tr>
+      <tr><td>best_months *</td><td>set of months</td><td>gives a bonus</td></tr>
+      <tr><td>avoid_months *</td><td>set of months</td><td>typhoon or rainy season, gives a penalty</td></tr>
+      <tr><td>day_ideas *</td><td>list of Day frames</td><td>2 to 3 ready-made days of stops</td></tr>
+      <tr><td>nearby</td><td><span class="proc">if-needed</span></td><td>when there are no day ideas, compute Nearby Spots within about 3 hours</td></tr>
+    </table></div>
+    <p class="desc" style="padding-bottom:12px">* only Curated Destinations fill these slots. Uncurated destinations inherit empty values and fall back to the <code>nearby</code> procedure.</p>
+  </section>
+
+  <section class="frame">
+    <div class="frame-h"><h3>Nearby Spot</h3><span class="isa">is-a: <b>Place</b></span></div>
+    <p class="desc">A town, beach or nature stop used by the "Trips You Might Also Like" section. About 110 are stored, including all destinations.</p>
+    <div class="scroll"><table class="tbl">
+      <tr><th>Slot</th><th>Type / facet</th><th>Meaning</th></tr>
+      <tr><td>name, position, island_group, type</td><td>as in Destination</td><td></td></tr>
+      <tr><td>highlights</td><td>list of 3 strings</td><td>shown as bullets</td></tr>
+      <tr><td>best_for</td><td>list of traveler types</td><td>e.g. Families, Divers, Couples</td></tr>
+      <tr><td>mountain_road</td><td>boolean, default false</td><td>slows road travel</td></tr>
+      <tr><td>travel_time_from(origin)</td><td><span class="proc">if-needed</span></td><td>road: distance × 1.4 ÷ 45 km/h · mountain road: × 2.2 ÷ 22 · boat: distance × 1.2 ÷ 35 + 0.75 h · only known ferry links are allowed</td></tr>
+      <tr><td>reason</td><td><span class="proc">if-needed</span></td><td>chosen from the type pair (nature, beach, culture, city, island) plus a day-trip or overnight tail</td></tr>
+    </table></div>
+  </section>
+
+  <section class="frame">
+    <div class="frame-h"><h3>Trip</h3><span class="isa">is-a: <b>Thing</b></span><span class="isa">kind: <b>mine</b> | <b>generated</b> | <b>example</b></span></div>
+    <p class="desc">The user's plan on the "My plan" tab.</p>
+    <div class="scroll"><table class="tbl">
+      <tr><th>Slot</th><th>Type / facet</th><th>Meaning</th></tr>
+      <tr><td>title</td><td>string, ≤ 80</td><td>editable</td></tr>
+      <tr><td>summary, best_time, tips</td><td>strings</td><td>filled when a trip is built from a Curated Destination</td></tr>
+      <tr><td>profile</td><td>Traveler Profile</td><td>kept in sync with the form</td></tr>
+      <tr><td>days</td><td>list of Day, 1 to 14</td><td>part-of</td></tr>
+      <tr><td>cost_per_person</td><td><span class="proc">if-needed</span></td><td>sum of all Day.cost</td></tr>
+      <tr><td>budget_left</td><td><span class="proc">if-needed</span></td><td>daily_budget × days − cost_per_person</td></tr>
+      <tr><td>group_cost</td><td><span class="proc">if-needed</span></td><td>cost_per_person × travelers</td></tr>
+    </table></div>
+  </section>
+
+  <section class="frame">
+    <div class="frame-h"><h3>Day</h3><span class="isa">is-a: <b>Thing</b></span><span class="isa">part-of: <b>Trip</b></span></div>
+    <div class="scroll"><table class="tbl">
+      <tr><th>Slot</th><th>Type / facet</th><th>Meaning</th></tr>
+      <tr><td>number</td><td>integer</td><td>renumbered when a day is removed</td></tr>
+      <tr><td>theme</td><td>string, ≤ 90</td><td>editable name for the day</td></tr>
+      <tr><td>stops</td><td>list of Stop</td><td>part-of</td></tr>
+      <tr><td>cost</td><td><span class="proc">if-needed</span></td><td>sum of Stop.cost</td></tr>
+      <tr><td>over_budget</td><td><span class="proc">if-needed</span></td><td>true when cost &gt; daily_budget · turns the meter red</td></tr>
+      <tr><td>stops</td><td><span class="proc">if-added</span></td><td>re-sort by time. Stops without a time go last.</td></tr>
+    </table></div>
+  </section>
+
+  <section class="frame">
+    <div class="frame-h"><h3>Stop</h3><span class="isa">is-a: <b>Thing</b></span><span class="isa">part-of: <b>Day</b></span></div>
+    <div class="scroll"><table class="tbl">
+      <tr><th>Slot</th><th>Type / facet</th><th>Default · range</th></tr>
+      <tr><td>time</td><td>HH:MM, optional</td><td>empty</td></tr>
+      <tr><td>title</td><td>string, required, ≤ 120</td><td>—</td></tr>
+      <tr><td>area</td><td>string, ≤ 80</td><td>empty</td></tr>
+      <tr><td>category</td><td>enum</td><td>sight · food, sight, nature, culture, night, rest, transport, shop, stay</td></tr>
+      <tr><td>duration</td><td>string, ≤ 20</td><td>empty, e.g. "1.5 h"</td></tr>
+      <tr><td>cost</td><td>PHP per person, ≥ 0</td><td>0 shows as "Free"</td></tr>
+      <tr><td>note</td><td>string, ≤ 220</td><td>empty</td></tr>
+    </table></div>
+  </section>
+
+  <section class="frame">
+    <div class="frame-h"><h3>Destination Match</h3><span class="isa">is-a: <b>Recommendation</b></span></div>
+    <p class="desc">The score the system computes for each curated destination. The top three are listed; the current one is shown first.</p>
+    <div class="scroll"><table class="tbl">
+      <tr><th>Slot</th><th>Type / facet</th><th>Rule</th></tr>
+      <tr><td>interest_fit</td><td><span class="proc">if-needed</span></td><td>+3 for every interest the destination's tags share with the traveler</td></tr>
+      <tr><td>budget_fit</td><td><span class="proc">if-needed</span></td><td>budget ≥ typical cost: +3 · within 80%: +1 · below that: −8 × the shortfall</td></tr>
+      <tr><td>season_fit</td><td><span class="proc">if-needed</span></td><td>best month: +3 · avoid month: −4</td></tr>
+      <tr><td>quiet_bonus</td><td><span class="proc">if-needed</span></td><td>if "Quiet/less-crowded places" is picked: + (4 − crowd_level)</td></tr>
+      <tr><td>reasons</td><td>list of strings</td><td>✓ positives and ! warnings shown on the card</td></tr>
+    </table></div>
+  </section>
+
+  <section>
+    <h2>Procedural attachments (demons)</h2>
+    <p class="note">Small procedures that fire when a slot is needed, added or changed.</p>
+    <div class="card"><div class="scroll"><table class="tbl" style="margin-top:0">
+      <tr><th>Trigger</th><th>Frame.slot</th><th>Effect</th></tr>
+      <tr><td><span class="proc">if-changed</span></td><td>Traveler Profile.*</td><td>sync the plan's profile, refresh the Recommended tab, update budget meters</td></tr>
+      <tr><td><span class="proc">if-changed</span></td><td>Traveler Profile.days</td><td>add empty days, or remove empty days from the end (refuse if the last day has stops)</td></tr>
+      <tr><td><span class="proc">if-added</span></td><td>Day.stops</td><td>sort by time</td></tr>
+      <tr><td><span class="proc">if-needed</span></td><td>Destination.nearby</td><td>rank nearby spots by travel time, then pick 3 to 5 with different types (city, beach, nature ...)</td></tr>
+      <tr><td><span class="proc">if-needed</span></td><td>Trip.days (from Curated Destination)</td><td>copy the day ideas, cap stops by pace, add a "Lodging (estimate)" stop each night except the last</td></tr>
+    </table></div></div>
+  </section>
+
+  <section>
+    <h2>Worked instance</h2>
+    <p class="note">One traveler, filled in.</p>
+    <div class="inst"><b>Traveler Profile</b> #t1
+  destination: Cebu       days: 3          month: November
+  party: Couple           travelers: 2     daily_budget: 3,500 PHP
+  pace: Balanced          interests: { Food &amp; markets, History, Nature &amp; hikes }
+
+<b>Destination</b> Cebu <em>(Curated)</em>
+  region: Visayas         type: city        crowd_level: 2
+  typical_cost_per_day: 3,000          lodging_per_night: 900
+  best_months: Jan to May              avoid_months: Sep, Oct
+  day_ideas: [ "Old Cebu on foot", "Canyon water and sardines", "Hills, gardens and seafood" ]
+
+<b>Destination Match</b> #m1  (t1, Cebu)
+  interest_fit: +9    budget_fit: +3    season_fit: 0 (November is neither best nor avoid)
+  reasons: ✓ Matches Food &amp; markets, History, Nature &amp; hikes   ✓ Fits your 3,500 PHP daily budget
+
+<b>Trip</b> #p1  title: "Cebu in 3 days"
+  Day 1 "Old Cebu on foot"           cost: 510 + lodging 900 = 1,410      over_budget: false
+  Day 2 "Canyon water and sardines"  cost: 3,650 + lodging 900 = 4,550    over_budget: true
+  Day 3 "Hills, gardens and seafood" cost: 1,850 (no lodging, last day)   over_budget: false
+  cost_per_person: 7,810    budget_left: 10,500 − 7,810 = 2,690</div>
+  </section>
+
+  <section>
+    <h2>Inference trace</h2>
+    <div class="card"><ol class="trace">
+      <li>Read the Traveler Profile slots from the form.</li>
+      <li>Look up the Destination frame. If it is Curated, show its day ideas and a Destination Match. If not, fire <code>nearby</code>.</li>
+      <li>Score every Curated Destination (interest, budget, season, quiet) and list the top three.</li>
+      <li>On "Build this trip" or "Add to my plan", copy Day frames from the Destination into the Trip and fire the <i>if-added</i> sort.</li>
+      <li>Compute Day.cost and Trip.budget_left on demand. Mark any Day that exceeds the daily budget.</li>
+      <li>The traveler edits any slot by hand. The <i>if-changed</i> demons refresh everything and save.</li>
+    </ol></div>
+  </section>
+</div>
+</body>
+</html>
