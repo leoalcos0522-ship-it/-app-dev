@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LakbayLokal — Knowledge Representation Presentation Script</title>
+<style>
+:root{
+  --bg:#EAF3FB; --surface:#FFFFFF; --fg:#0B1F4B; --muted:#4A5C80; --line:#C5D6EE;
+  --blue:#0038A8; --red:#CE1126; --yellow:#FCD116; --yellow-ink:#3A2E00; --green:#17804A; --code:#F2F7FD;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#071433;--surface:#0E1F4A;--fg:#EEF3FF;--muted:#A3B4DB;--line:#26427F;--blue:#7FA3FF;--red:#FF8A93;--green:#3DD68C;--code:#0A1A42}
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif;padding:20px 16px 56px}
+.wrap{max-width:1040px;margin:0 auto;display:grid;gap:22px}
+.flag{display:grid;grid-template-columns:1fr 1fr 1fr;height:6px;border-radius:3px;overflow:hidden}
+.flag i:nth-child(1){background:#0038A8}.flag i:nth-child(2){background:#CE1126}.flag i:nth-child(3){background:#FCD116}
+.kicker{font:600 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--red)}
+h1{margin:6px 0 4px;font-size:clamp(1.7rem,4.6vw,2.4rem);letter-spacing:-.03em;line-height:1.08}
+h1 span{color:var(--red)}
+h2{margin:0;font-size:1.3rem;letter-spacing:-.01em}
+.sub{margin:4px 0 0;color:var(--muted);max-width:68ch}
+section{display:grid;gap:10px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.card.top{border-top:5px solid var(--blue)}
+.card.t2{border-top:5px solid var(--red)}
+.card.t3{border-top:5px solid var(--yellow)}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font:600 10.5px/1.2 var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);padding:9px 14px;background:var(--code);white-space:nowrap}
+td{padding:11px 14px;border-top:1px solid var(--line);vertical-align:top}
+td.t{font:600 12px/1.4 var(--mono);white-space:nowrap;color:var(--muted)}
+td.do{color:var(--muted);min-width:230px}
+td.say{min-width:330px}
+td.say p{margin:0 0 8px}
+td.say p:last-child{margin:0}
+code{font:12.5px var(--mono);background:var(--code);padding:1px 5px;border-radius:4px}
+.rule{font:12.5px/1.6 var(--mono);background:var(--code);padding:8px 10px;border-radius:8px;display:block;margin-top:6px;white-space:pre-wrap}
+.tag{display:inline-block;font:600 10px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:3px 6px;border-radius:4px;background:var(--yellow);color:var(--yellow-ink);margin-right:4px}
+.tag.b{background:var(--blue);color:#fff}
+@media (prefers-color-scheme:dark){.tag.b{color:#04112E}}
+.note{color:var(--muted);font-size:13.5px;margin:0}
+ul{margin:0;padding-left:20px}
+@media print{body{background:#fff}.card{break-inside:avoid}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="flag" aria-hidden="true"><i></i><i></i><i></i></div>
+
+  <header>
+    <span class="kicker">Presentation script · about 10 minutes</span>
+    <h1>Four Knowledge Representations in Lakbay<span>Lokal</span></h1>
+    <p class="sub">Logical, Semantic Network, Frame and Production Rules, each shown with the working LakbayLokal system. Read the "Say" column aloud and do the "Do in the system" column at the same time.</p>
+  </header>
+
+  <section>
+    <h2>Before you start</h2>
+    <div class="card top"><div class="scroll"><table>
+      <tr><th>Setup</th><th>Details</th></tr>
+      <tr><td>Open</td><td><code>index.html</code> (the system) in one browser tab and <code>lakbaylokal-frames.html</code> (the frame tables) in another.</td></tr>
+      <tr><td>Starting form</td><td>Destination Cebu · 3 days · November · Couple · 2 travelers · budget 3,500 PHP · Balanced · interests Food &amp; markets, History, Nature &amp; hikes. These are the defaults.</td></tr>
+      <tr><td>Starting tab</td><td>"Recommended trips" on the right. If "My plan" opens instead, press "Start a new plan".</td></tr>
+      <tr><td>The four representations</td><td>Logical, Semantic Network, Frame, Production Rules. If your class counts Procedural instead of Semantic Network, swap in Section 5 of <code>lakbaylokal-frames.html</code> (the inference trace).</td></tr>
+    </table></div></div>
+  </section>
+
+  <section>
+    <h2>The script</h2>
+    <div class="card t2"><div class="scroll"><table>
+      <tr><th>Time</th><th>Slide</th><th>Do in the system</th><th>Say</th></tr>
+
+      <tr><td class="t">0:00</td><td><b>1. Opening</b></td>
+        <td class="do">Show the full page: the wavy banner and the form on the left.</td>
+        <td class="say"><p>Good day everyone. Our system is LakbayLokal. "Lakbay" means journey and "lokal" means local. It helps a traveler pick a Philippine destination and plan the trip day by day.</p>
+        <p>A system like this has to hold knowledge about places, travelers and money, and then reason with it. Today I will show four ways of representing that knowledge: logical, semantic network, frames and production rules. Each one is running inside this system right now.</p></td></tr>
+
+      <tr><td class="t">1:00</td><td><b>2. Logical representation</b><br><span class="tag b">Facts</span><span class="tag b">Rules</span></td>
+        <td class="do">Keep Cebu, November, 3,500 PHP. Point at the "Best of Cebu" card: "✓ Fits your ₱3,500 daily budget".</td>
+        <td class="say"><p>Logical representation states knowledge as facts and rules that are either true or false.</p>
+        <p>Here are facts the system stores about Cebu: <code>destination(Cebu)</code>, <code>tag(Cebu, food)</code>, <code>typical_cost(Cebu, 3000)</code>, <code>avoid_month(Cebu, September)</code>.</p>
+        <p>And here are facts about this traveler: <code>budget(traveler, 3500)</code> and <code>month(traveler, November)</code>.</p>
+        <span class="rule">RULE: fits_budget(T, D) :- budget(T) >= typical_cost(D)
+RULE: season_risk(T, D) :- month(T) in avoid_months(D)</span>
+        <p>3,500 is at least 3,000, so <code>fits_budget</code> is true, and the card shows a green check.</p></td></tr>
+
+      <tr><td class="t">2:30</td><td><b>2. Logical (proof by changing a fact)</b></td>
+        <td class="do">Change the budget to 1500. Then put it back to 3500 and change the month to September.</td>
+        <td class="say"><p>Watch what happens when I change a fact. The budget is now 1,500, so <code>fits_budget</code> becomes false and the card shows a warning: the typical day is above your budget.</p>
+        <p>Back to 3,500, but now the month is September. Cebu has September in its avoid months, so <code>season_risk</code> is true and the system warns about typhoon or rainy season. Same rules, different facts, different conclusion. That is the strength of logic: it is precise and it can explain why.</p></td></tr>
+
+      <tr><td class="t">3:30</td><td><b>3. Semantic network</b><br><span class="tag b">Nodes</span><span class="tag b">Links</span></td>
+        <td class="do">Set the month back to November. Pick Tagaytay from the destination list. Scroll to "Trips You Might Also Like".</td>
+        <td class="say"><p>A semantic network stores knowledge as nodes connected by labeled links. It is good for relationships.</p>
+        <p>Tagaytay is a node. Look at the links leaving it: Tagaytay is near Taal Heritage Town, about 45 minutes. Near Anilao, about one hour. Near Manila, about an hour and a half. Near Laiya, about two hours. Near Verde Island, about three hours.</p>
+        <p>Each of those is a node too. Taal Heritage Town is a culture place. Anilao is a beach. Verde Island is an island. Each node also links to its highlights and to the kind of traveler it suits, such as Divers or Families.</p>
+        <p>The system follows the "near" links, keeps the ones within about three hours, and picks different types so the suggestions are diverse.</p></td></tr>
+
+      <tr><td class="t">5:00</td><td><b>3. Semantic network (follow a link)</b></td>
+        <td class="do">Click "Show trips for Manila" on the Manila card.</td>
+        <td class="say"><p>I can walk the network. I click Manila, and now Manila becomes the starting node with its own links and its own built-in trip ideas. That is the advantage of a network: moving from one concept to the next is just following an edge.</p></td></tr>
+
+      <tr><td class="t">5:30</td><td><b>4. Frames</b><br><span class="tag b">Slots</span><span class="tag b">Defaults</span><span class="tag b">Procedures</span></td>
+        <td class="do">Pick Cebu again. Click "Build this trip", then open the "My plan" tab. Click "+ Add a stop" and show the form fields.</td>
+        <td class="say"><p>A frame groups everything known about one concept into slots. The plan you see is a Trip frame. It contains Day frames, and each Day contains Stop frames.</p>
+        <p>This form is the Stop frame. Its slots are time, title, area, category, duration, cost and note. Category has a fixed set of allowed values, and cost defaults to zero, which the system shows as "Free".</p>
+        <p>Frames can also carry procedures. The day cost is not typed by anyone. It is computed from the stops, which is an if-needed procedure.</p></td></tr>
+
+      <tr><td class="t">7:00</td><td><b>4. Frames (procedures firing)</b></td>
+        <td class="do">Add a stop "Breakfast" at 06:30 costing 150. It jumps to the top. Then add a stop costing 3000 and watch the day meter turn red.</td>
+        <td class="say"><p>I add a breakfast at 6:30. The if-added procedure re-sorts the stops, so it moves to the top of the day.</p>
+        <p>Now I add something expensive. The Day frame recomputes its cost, compares it with the daily budget slot, and the meter turns red with the amount over budget. The trip card also updates the total and the budget left. Nobody wrote those numbers. The frames worked them out.</p></td></tr>
+
+      <tr><td class="t">8:00</td><td><b>5. Production rules</b><br><span class="tag b">IF</span><span class="tag b">THEN</span></td>
+        <td class="do">Go back to "Recommended trips". Select the interest "Quiet/less-crowded places" and watch the order of the suggestions change.</td>
+        <td class="say"><p>Production rules are IF-THEN pairs. The system has a small rule base that fires whenever the traveler changes something. Here are the main rules:</p>
+        <span class="rule">IF a destination tag matches a chosen interest   THEN +3 points
+IF budget >= typical cost                      THEN +3
+ELSE IF budget is within 80% of cost           THEN +1
+ELSE                                           THEN penalty
+IF month is a best month                       THEN +3
+IF month is an avoid month                     THEN -4
+IF "less crowded" is chosen                    THEN + (4 - crowd level)
+IF pace is Relaxed                             THEN 4 stops per day
+IF it is the last day                          THEN no lodging stop
+IF a day costs more than the daily budget      THEN show the meter in red
+IF a destination has no built-in trips         THEN find nearby places</span>
+        <p>I just chose "less crowded". That rule fired, quiet places gained points. Vigan moved to the top and Sagada joined the list, so the ranking changed.</p></td></tr>
+
+      <tr><td class="t">9:00</td><td><b>6. Putting it together</b></td>
+        <td class="do">Show the comparison table below on screen, or switch to <code>lakbaylokal-frames.html</code>.</td>
+        <td class="say"><p>All four work together in one request. Rules score the destinations. Facts store what is true about each place. The network connects each place to nearby ones. Frames hold the trip and compute its totals.</p></td></tr>
+
+      <tr><td class="t">9:30</td><td><b>7. Closing</b></td>
+        <td class="do">Return to the banner.</td>
+        <td class="say"><p>To sum up: logic gives precise facts and explainable answers, networks give relationships and travel links, frames give structure with computed values, and rules give flexible decisions. Together they let LakbayLokal recommend, plan and warn. Thank you. We are happy to take questions.</p></td></tr>
+    </table></div></div>
+  </section>
+
+  <section>
+    <h2>Slide 6 table: four representations side by side</h2>
+    <div class="card top"><div class="scroll"><table>
+      <tr><th>Representation</th><th>Core idea</th><th>Where it is in LakbayLokal</th><th>Strength</th><th>Limit</th></tr>
+      <tr><td><b>Logical</b></td><td>Facts and rules that are true or false</td><td>Budget fit and season risk checks on each destination</td><td>Precise and explainable</td><td>All or nothing. No "almost fits" unless a rule is added</td></tr>
+      <tr><td><b>Semantic network</b></td><td>Nodes joined by labeled links</td><td>"Trips You Might Also Like": near links with travel times, type and traveler links</td><td>Shows relationships and lets you walk from place to place</td><td>Links and times must be entered for each place</td></tr>
+      <tr><td><b>Frame</b></td><td>A concept with slots, defaults and procedures</td><td>Trip, Day and Stop; Destination with cost, best months and crowd level</td><td>Organized, with values computed automatically</td><td>Fixed slots. A new kind of detail needs a new slot</td></tr>
+      <tr><td><b>Production rules</b></td><td>IF condition THEN action</td><td>Scoring of destinations, pace limits, lodging, over-budget warning</td><td>Easy to add or change one rule</td><td>Many rules can interact and be hard to track</td></tr>
+    </table></div></div>
+  </section>
+
+  <section>
+    <h2>Likely questions and short answers</h2>
+    <div class="card t3"><div class="scroll"><table>
+      <tr><th>Question</th><th>Answer</th></tr>
+      <tr><td>Is this real AI?</td><td>The recommendations come from stored knowledge and rules, a classic knowledge-based system. An optional Claude button exists, but everything shown today runs without it.</td></tr>
+      <tr><td>Where do the prices come from?</td><td>They are planning estimates written into the system, not live prices. The page tells the user to confirm before booking.</td></tr>
+      <tr><td>How are travel times found?</td><td>From the distance between two places, with road or boat speeds and a short list of known ferry links. They are estimates.</td></tr>
+      <tr><td>Why four representations?</td><td>Each fits a different kind of knowledge: facts and tests, relationships, structured objects and decision rules.</td></tr>
+      <tr><td>What would you add next?</td><td>More destinations with built-in trips, live prices and weather, and a rule to avoid rainy months automatically when the traveler says "Any time".</td></tr>
+    </table></div></div>
+  </section>
+</div>
+</body>
+</html>
