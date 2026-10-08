@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LakbayLokal — System Presentation Script</title>
+<style>
+:root{
+  --bg:#EAF3FB; --surface:#FFFFFF; --fg:#0B1F4B; --muted:#4A5C80; --line:#C5D6EE;
+  --blue:#0038A8; --red:#CE1126; --yellow:#FCD116; --yellow-ink:#3A2E00; --green:#17804A; --code:#F2F7FD;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#071433;--surface:#0E1F4A;--fg:#EEF3FF;--muted:#A3B4DB;--line:#26427F;--blue:#7FA3FF;--red:#FF8A93;--green:#3DD68C;--code:#0A1A42}
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif;padding:20px 16px 56px}
+.wrap{max-width:1040px;margin:0 auto;display:grid;gap:22px}
+.flag{display:grid;grid-template-columns:1fr 1fr 1fr;height:6px;border-radius:3px;overflow:hidden}
+.flag i:nth-child(1){background:#0038A8}.flag i:nth-child(2){background:#CE1126}.flag i:nth-child(3){background:#FCD116}
+.kicker{font:600 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--red)}
+h1{margin:6px 0 4px;font-size:clamp(1.7rem,4.6vw,2.4rem);letter-spacing:-.03em;line-height:1.08}
+h1 span{color:var(--red)}
+h2{margin:0;font-size:1.3rem;letter-spacing:-.01em}
+.sub{margin:4px 0 0;color:var(--muted);max-width:68ch}
+section{display:grid;gap:10px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.card.top{border-top:5px solid var(--blue)}
+.card.t2{border-top:5px solid var(--red)}
+.card.t3{border-top:5px solid var(--yellow)}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font:600 10.5px/1.2 var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);padding:9px 14px;background:var(--code);white-space:nowrap}
+td{padding:11px 14px;border-top:1px solid var(--line);vertical-align:top}
+td.t{font:600 12px/1.4 var(--mono);white-space:nowrap;color:var(--muted)}
+td.do{color:var(--muted);min-width:230px}
+td.say{min-width:330px}
+td.say p{margin:0 0 8px}
+td.say p:last-child{margin:0}
+code{font:12.5px var(--mono);background:var(--code);padding:1px 5px;border-radius:4px}
+.rule{font:12.5px/1.6 var(--mono);background:var(--code);padding:8px 10px;border-radius:8px;display:block;margin-top:6px;white-space:pre-wrap}
+.tag{display:inline-block;font:600 10px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:3px 6px;border-radius:4px;background:var(--yellow);color:var(--yellow-ink);margin-right:4px}
+.tag.b{background:var(--blue);color:#fff}
+@media (prefers-color-scheme:dark){.tag.b{color:#04112E}}
+.note{color:var(--muted);font-size:13.5px;margin:0}
+ul{margin:0;padding-left:20px}
+@media print{body{background:#fff}.card{break-inside:avoid}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="flag" aria-hidden="true"><i></i><i></i><i></i></div>
+
+  <header>
+    <span class="kicker">Presentation script · about 10 minutes</span>
+    <h1>Presenting Lakbay<span>Lokal</span></h1>
+    <p class="sub">A live walkthrough of the system: what it is, what it does, how a traveler uses it, and where it stops. Read the "Say" column aloud and do the "Do in the system" column at the same time.</p>
+  </header>
+
+  <section>
+    <h2>Before you start</h2>
+    <div class="card top"><div class="scroll"><table>
+      <tr><th>Setup</th><th>Details</th></tr>
+      <tr><td>Open</td><td><code>index.html</code> in a browser. Use a full-screen window so the banner and both columns are visible.</td></tr>
+      <tr><td>Starting form</td><td>Destination Cebu · 3 days · November · Couple · 2 travelers · 3,500 PHP · Balanced · interests Food &amp; markets, History, Nature &amp; hikes. These are the defaults.</td></tr>
+      <tr><td>Clean slate</td><td>If an old plan opens, press "Start a new plan" first. The page saves plans in the browser, so a rehearsal can leave stops behind.</td></tr>
+      <tr><td>Optional</td><td>The "Suggest with Claude" button only appears when the page runs inside Claude. The demo does not need it.</td></tr>
+    </table></div></div>
+  </section>
+
+  <section>
+    <h2>The script</h2>
+    <div class="card t2"><div class="scroll"><table>
+      <tr><th>Time</th><th>Slide</th><th>Do in the system</th><th>Say</th></tr>
+
+      <tr><td class="t">0:00</td><td><b>1. The problem</b></td>
+        <td class="do">Show the banner only. Do not click anything yet.</td>
+        <td class="say"><p>Good day everyone. Planning a trip in the Philippines is harder than it looks. There are thousands of islands, rainy and typhoon seasons that change by region, ferries, and budgets that disappear quickly. Most people end up with ten browser tabs and a guess.</p>
+        <p>Our answer is LakbayLokal. "Lakbay" means journey and "lokal" means local.</p></td></tr>
+
+      <tr><td class="t">1:00</td><td><b>2. What the system does</b></td>
+        <td class="do">Point to the form on the left, then to the two tabs on the right: "Recommended trips" and "My plan".</td>
+        <td class="say"><p>LakbayLokal does three things. It recommends where to go. It builds a day-by-day plan for you. And it lets you edit that plan yourself, with your own stops and your own costs, while watching your budget.</p>
+        <p>The left side is where the traveler describes the trip. The right side is where the system answers.</p></td></tr>
+
+      <tr><td class="t">2:00</td><td><b>3. Step 1: tell the system about your trip</b></td>
+        <td class="do">Walk down the form: destination list, days, month, party, travelers, budget and currency, pace, interests.</td>
+        <td class="say"><p>Step one is the basics. Pick a destination from 41 Philippine places across Luzon, Palawan, the Visayas and Mindanao. Choose how many days, the month, who is travelling and how many people.</p>
+        <p>Then the budget per person per day, in any of nine currencies. Then the pace: relaxed, balanced or packed. And last, your interests, such as food, beaches, history or quiet places.</p>
+        <p>Notice there is no "submit" button for recommendations. The right side updates as soon as anything changes.</p></td></tr>
+
+      <tr><td class="t">3:00</td><td><b>4. Step 2: recommended trips</b></td>
+        <td class="do">With Cebu selected, show "Trips for Cebu": the "Best of Cebu" card, the three day ideas, and "You might also like".</td>
+        <td class="say"><p>For Cebu, the system shows a full "Best of Cebu" trip and three ready-made day ideas, for example "Old Cebu on foot". Each idea shows which of your interests it fits and about what it costs per person.</p>
+        <p>The green check says it fits the 3,500 daily budget. Below, it suggests other destinations that suit this traveler.</p></td></tr>
+
+      <tr><td class="t">4:00</td><td><b>5. The system reacts: season and budget</b></td>
+        <td class="do">Change the month to September. Then set the budget to 1500. Then restore 3500 and November.</td>
+        <td class="say"><p>Let me change the month to September. The card now warns that September is typhoon or rainy season for Cebu. Now the budget drops to 1,500, and the system says a typical day is above your budget.</p>
+        <p>I am not asking it a question. It is simply checking what I entered against what it knows about the place.</p></td></tr>
+
+      <tr><td class="t">5:00</td><td><b>6. Step 3: build and edit your plan</b></td>
+        <td class="do">Click "Build this trip". On "My plan", show the ticket, the day tabs and the budget meter. Click "Edit" on one stop, then "Remove" on another.</td>
+        <td class="say"><p>One click builds a three-day Cebu itinerary. Every day has a timeline with times, places, notes and costs. A meter compares each day with your daily budget, and the ticket at the top adds up the whole trip per person and for the group.</p>
+        <p>It also adds an estimated lodging cost for each night. Nothing here is locked. I can edit or remove any stop.</p></td></tr>
+
+      <tr><td class="t">6:15</td><td><b>7. Plan it your own way</b></td>
+        <td class="do">Click "+ Add a stop". Add "Breakfast" at 06:30 costing 150. Then add a stop costing 3000. Click "+ Add day" and name the day.</td>
+        <td class="say"><p>This is the part I like most. The traveler can plan by hand. I add breakfast at 6:30 and it sorts itself to the top of the day. Now I add something expensive, and the meter turns red and shows how much I am over.</p>
+        <p>I can add another day, give each day a name, and rename the trip. Everything saves automatically in the browser, so the plan is still here when I come back.</p></td></tr>
+
+      <tr><td class="t">7:15</td><td><b>8. Destinations without a ready-made trip</b></td>
+        <td class="do">Open "Start a new plan", then choose Tagaytay in the destination list. Go to "Recommended trips" and scroll to "Trips You Might Also Like".</td>
+        <td class="say"><p>Not every place has a built-in itinerary. 12 destinations do. For the other 29, such as Tagaytay, the system does something different. It looks for places within about three hours, and shows 3 to 5 of them.</p>
+        <p>Each card gives the travel time, why it is a good addition, three highlights, and who it suits. They are deliberately different: a heritage town, a diving beach, a city. I can add one to my plan as a day trip, or switch to it and see its own trips.</p></td></tr>
+
+      <tr><td class="t">8:15</td><td><b>9. How it is built</b></td>
+        <td class="do">No action. Optionally show <code>lakbaylokal-frames.html</code>.</td>
+        <td class="say"><p>Technically, the whole system is a single web page. There is no server and no account. The knowledge about places, costs, best months and nearby spots is stored in the page, and rules compute the recommendations, budgets and travel times. If the page runs inside Claude, an extra button can ask Claude to suggest a plan, but the system works fully without it.</p></td></tr>
+
+      <tr><td class="t">9:00</td><td><b>10. Limits and next steps</b></td>
+        <td class="do">Return to the banner.</td>
+        <td class="say"><p>To be honest about limits: prices are planning estimates, not live prices. Travel times are estimates from distance and known ferry links. Only 12 destinations have full itineraries.</p>
+        <p>Next we want more destinations with built-in trips, live weather and prices, and sharing a plan with a friend.</p>
+        <p>Thank you. We would be happy to take questions.</p></td></tr>
+    </table></div></div>
+  </section>
+
+  <section>
+    <h2>Feature summary slide</h2>
+    <div class="card top"><div class="scroll"><table>
+      <tr><th>Feature</th><th>What the traveler sees</th><th>Where it is</th></tr>
+      <tr><td><b>Trip basics</b></td><td>41 destinations, 1 to 10 days, month, party, travelers, budget in 9 currencies, pace, 12 interests</td><td>Form on the left</td></tr>
+      <tr><td><b>Recommended trips</b></td><td>Best-of trip, day ideas, other destinations that fit, with reasons and warnings</td><td>"Recommended trips" tab</td></tr>
+      <tr><td><b>Nearby trips</b></td><td>3 to 5 places within about 3 hours, with travel time, highlights and traveler types</td><td>Destinations without built-in trips</td></tr>
+      <tr><td><b>Your own plan</b></td><td>Add, edit and remove stops, name days, add up to 14 days, auto-sorted by time</td><td>"My plan" tab</td></tr>
+      <tr><td><b>Budget tracking</b></td><td>Day meters, trip total, group total, budget left, red when over</td><td>"My plan" tab</td></tr>
+      <tr><td><b>Save and share</b></td><td>Saves in the browser. "Copy as text" copies the plan.</td><td>"My plan" tab</td></tr>
+    </table></div></div>
+  </section>
+
+  <section>
+    <h2>Likely questions and short answers</h2>
+    <div class="card t3"><div class="scroll"><table>
+      <tr><th>Question</th><th>Answer</th></tr>
+      <tr><td>Who is it for?</td><td>Travelers planning a Philippine trip, from first-time visitors to locals exploring a new region.</td></tr>
+      <tr><td>Do I need an account or internet?</td><td>No account. The page itself works offline once opened, though the fonts load from the internet.</td></tr>
+      <tr><td>How accurate are the prices?</td><td>They are estimates. The page tells the user to confirm prices, schedules and sea conditions before booking.</td></tr>
+      <tr><td>Why only 12 destinations with full trips?</td><td>Each one is written by hand with real places and costs. The rest still get nearby trip suggestions and can be planned manually.</td></tr>
+      <tr><td>What if I choose a bad month?</td><td>The system warns about typhoon or rainy season and ranks other places higher.</td></tr>
+      <tr><td>Can it plan without AI?</td><td>Yes. Recommendations and plans run on stored knowledge and rules. The optional Claude button is extra.</td></tr>
+    </table></div></div>
+  </section>
+</div>
+</body>
+</html>
