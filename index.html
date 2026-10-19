@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RUBY Fashionable II - POS & Inventory</title>
+<style>
+:root{--red:#c8102e;--dark:#1c1c24;--bg:#f4f5f7;--card:#fff;--muted:#6b7280;--line:#e5e7eb;--ok:#16a34a;--warn:#f59e0b}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,Segoe UI,Roboto,sans-serif;background:var(--bg);color:#111;font-size:14px}
+header{background:var(--dark);color:#fff;display:flex;align-items:center;gap:16px;padding:10px 18px;position:sticky;top:0;z-index:10;flex-wrap:wrap}
+header h1{font-size:18px;margin:0;color:#fff}header h1 span{color:var(--red)}
+nav{display:flex;gap:4px;flex-wrap:wrap}
+nav button{background:none;border:0;color:#ccc;padding:8px 14px;border-radius:6px;cursor:pointer;font-size:14px}
+nav button.active{background:var(--red);color:#fff}
+main{padding:16px;max-width:1400px;margin:auto}
+.tab{display:none}.tab.active{display:block}
+.card{background:var(--card);border-radius:10px;padding:14px;box-shadow:0 1px 3px #0001}
+.grid{display:grid;gap:12px}
+.stats{grid-template-columns:repeat(auto-fit,minmax(180px,1fr));margin-bottom:14px}
+.stat b{display:block;font-size:22px;margin-top:4px}.stat small{color:var(--muted)}
+input,select,textarea{padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:14px;width:100%;background:#fff}
+button.btn{background:var(--red);color:#fff;border:0;padding:9px 14px;border-radius:6px;cursor:pointer;font-size:14px}
+button.btn.sec{background:#e5e7eb;color:#111}button.btn.ok{background:var(--ok)}button.btn.sm{padding:4px 9px;font-size:12px}
+button.btn:disabled{opacity:.5;cursor:not-allowed}
+table{width:100%;border-collapse:collapse}th,td{padding:8px;border-bottom:1px solid var(--line);text-align:left}
+th{font-size:12px;color:var(--muted);text-transform:uppercase}td.r,th.r{text-align:right}
+.pos{grid-template-columns:1fr 380px;align-items:start}
+@media(max-width:900px){.pos{grid-template-columns:1fr}}
+.toolbar{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}.toolbar input{flex:1;min-width:160px}.toolbar select{width:auto}
+.products{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+.prod{border:1px solid var(--line);border-radius:8px;padding:10px;cursor:pointer;background:#fff;text-align:center}
+.prod:hover{border-color:var(--red)}.prod.out{opacity:.4;pointer-events:none}
+.prod .em{font-size:34px}.prod .img{height:70px;object-fit:cover;width:100%;border-radius:6px}
+.prod .n{font-weight:600;margin:4px 0}.prod .p{color:var(--red);font-weight:700}.prod .s{font-size:12px;color:var(--muted)}
+.cart{position:sticky;top:70px}
+.line{display:flex;align-items:center;gap:6px;padding:6px 0;border-bottom:1px solid var(--line)}
+.line .nm{flex:1}.line .q{display:flex;align-items:center;gap:4px}.line .q button{width:24px;height:24px;border:1px solid var(--line);background:#fff;border-radius:4px;cursor:pointer}
+.row{display:flex;justify-content:space-between;margin:6px 0}.total{font-size:20px;font-weight:700;color:var(--red)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.badge{padding:2px 8px;border-radius:99px;font-size:12px;color:#fff}.b-ok{background:var(--ok)}.b-low{background:var(--warn)}.b-out{background:var(--red)}
+.modal{position:fixed;inset:0;background:#0007;display:none;align-items:center;justify-content:center;z-index:50;padding:12px}
+.modal.show{display:flex}.modal .box{background:#fff;border-radius:10px;padding:18px;width:100%;max-width:460px;max-height:92vh;overflow:auto}
+.modal label{display:block;margin:8px 0 3px;font-size:12px;color:var(--muted)}
+.empty{color:var(--muted);text-align:center;padding:20px}
+#receipt{font-family:monospace;font-size:12px;white-space:pre-wrap}
+@media print{body *{visibility:hidden}#receiptBox,#receiptBox *{visibility:visible}#receiptBox{position:absolute;left:0;top:0;width:100%}}
+</style>
+</head>
+<body>
+<header>
+  <h1>💎 RUBY <span>Fashionable II</span></h1>
+  <nav id="nav">
+    <button data-tab="dash" class="active">📊 Dashboard</button>
+    <button data-tab="pos">🛒 POS</button>
+    <button data-tab="inv">📦 Inventory</button>
+    <button data-tab="sales">🧾 Sales</button>
+    <button data-tab="set">⚙️ Settings</button>
+  </nav>
+</header>
+<main>
+
+<!-- DASHBOARD -->
+<section id="dash" class="tab active">
+  <div class="grid stats" id="stats"></div>
+  <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr))">
+    <div class="card"><h3 style="margin-top:0">⚠️ Low / Out of Stock</h3><div id="lowList"></div></div>
+    <div class="card"><h3 style="margin-top:0">🔥 Best Sellers</h3><div id="bestList"></div></div>
+    <div class="card"><h3 style="margin-top:0">🕒 Recent Sales</h3><div id="recentList"></div></div>
+  </div>
+</section>
+
+<!-- POS -->
+<section id="pos" class="tab">
+  <div class="grid pos">
+    <div class="card">
+      <div class="toolbar">
+        <input id="posSearch" placeholder="🔍 Hanapin ang item (name / SKU)...">
+        <select id="posCat"></select>
+      </div>
+      <div class="grid products" id="posProducts"></div>
+    </div>
+    <div class="card cart">
+      <h3 style="margin-top:0">🛒 Order / Cart</h3>
+      <div id="cartLines"></div>
+      <div class="two" style="margin-top:10px">
+        <div><label>Customer name</label><input id="custName" placeholder="Optional"></div>
+        <div><label>Contact / FB name</label><input id="custContact" placeholder="Optional"></div>
+      </div>
+      <div class="two" style="margin-top:6px">
+        <div><label>Discount (₱)</label><input id="discount" type="number" min="0" value="0"></div>
+        <div><label>Shipping fee (₱)</label><input id="shipping" type="number" min="0" value="0"></div>
+      </div>
+      <div class="two" style="margin-top:6px">
+        <div><label>Payment</label>
+          <select id="payMethod"><option>Cash</option><option>GCash</option><option>Maya</option><option>Bank Transfer</option><option>COD</option></select></div>
+        <div><label>Amount received (₱)</label><input id="received" type="number" min="0" placeholder="0"></div>
+      </div>
+      <hr style="border:0;border-top:1px solid var(--line)">
+      <div class="row"><span>Subtotal</span><span id="subtotal">₱0.00</span></div>
+      <div class="row"><span>Discount</span><span id="discAmt">₱0.00</span></div>
+      <div class="row"><span>Shipping</span><span id="shipAmt">₱0.00</span></div>
+      <div class="row total"><span>TOTAL</span><span id="grand">₱0.00</span></div>
+      <div class="row"><span>Change</span><span id="change">₱0.00</span></div>
+      <div class="two" style="margin-top:8px">
+        <button class="btn sec" id="clearCart">Clear</button>
+        <button class="btn ok" id="checkout">✔ Checkout</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INVENTORY -->
+<section id="inv" class="tab">
+  <div class="card">
+    <div class="toolbar">
+      <input id="invSearch" placeholder="🔍 Search item / SKU...">
+      <select id="invCat"></select>
+      <select id="invFilter"><option value="">All stock</option><option value="low">Low stock</option><option value="out">Out of stock</option></select>
+      <button class="btn" id="addProd">+ Add Item</button>
+    </div>
+    <div style="overflow:auto"><table>
+      <thead><tr><th>Item</th><th>SKU</th><th>Category</th><th class="r">Cost</th><th class="r">Price</th><th class="r">Stock</th><th>Status</th><th class="r">Value</th><th></th></tr></thead>
+      <tbody id="invBody"></tbody>
+    </table></div>
+    <div id="invSummary" style="margin-top:10px;color:var(--muted)"></div>
+  </div>
+</section>
+
+<!-- SALES -->
+<section id="sales" class="tab">
+  <div class="card">
+    <div class="toolbar">
+      <input id="salesFrom" type="date" style="max-width:170px"><input id="salesTo" type="date" style="max-width:170px">
+      <input id="salesSearch" placeholder="🔍 Customer / receipt no.">
+      <button class="btn sec" id="exportSales">⬇ Export CSV</button>
+    </div>
+    <div style="overflow:auto"><table>
+      <thead><tr><th>Receipt</th><th>Date</th><th>Customer</th><th>Items</th><th>Payment</th><th class="r">Total</th><th class="r">Profit</th><th></th></tr></thead>
+      <tbody id="salesBody"></tbody>
+    </table></div>
+    <div id="salesSummary" style="margin-top:10px;font-weight:600"></div>
+  </div>
+</section>
+
+<!-- SETTINGS -->
+<section id="set" class="tab">
+  <div class="card" style="max-width:600px">
+    <h3 style="margin-top:0">Store</h3>
+    <label>Store name</label><input id="setName">
+    <label style="margin-top:8px;display:block">Contact / address (nasa resibo)</label><input id="setContact">
+    <label style="margin-top:8px;display:block">Low stock alert (≤)</label><input id="setLow" type="number" min="0">
+    <label style="margin-top:8px;display:block">Categories (comma separated)</label><input id="setCats">
+    <p><button class="btn" id="saveSettings">Save Settings</button></p>
+    <hr style="border:0;border-top:1px solid var(--line)">
+    <h3>Backup (data is saved in this browser)</h3>
+    <button class="btn sec" id="backup">⬇ Download Backup</button>
+    <label class="btn sec" style="display:inline-block;margin-left:6px">⬆ Restore Backup<input type="file" id="restore" accept=".json" hidden></label>
+    <button class="btn sec" id="resetAll" style="margin-left:6px;color:var(--red)">Reset All Data</button>
+  </div>
+</section>
+</main>
+
+<!-- Product modal -->
+<div class="modal" id="prodModal"><div class="box">
+  <h3 id="pmTitle" style="margin-top:0">Item</h3>
+  <label>Item name</label><input id="pName">
+  <div class="two"><div><label>SKU</label><input id="pSku"></div><div><label>Category</label><select id="pCat"></select></div></div>
+  <div class="two"><div><label>Cost (₱)</label><input id="pCost" type="number" min="0"></div><div><label>Selling price (₱)</label><input id="pPrice" type="number" min="0"></div></div>
+  <div class="two"><div><label>Stock</label><input id="pStock" type="number" min="0"></div><div><label>Emoji / Icon</label><input id="pEmoji" maxlength="2" placeholder="👜"></div></div>
+  <label>Photo (optional)</label><input id="pImg" type="file" accept="image/*">
+  <div style="margin-top:14px;text-align:right"><button class="btn sec" data-close>Cancel</button> <button class="btn" id="pSave">Save</button></div>
+</div></div>
+
+<!-- Stock modal -->
+<div class="modal" id="stockModal"><div class="box">
+  <h3 style="margin-top:0">Adjust Stock: <span id="smName"></span></h3>
+  <p>Current stock: <b id="smCur"></b></p>
+  <label>Add (+) or remove (−) quantity</label><input id="smQty" type="number" placeholder="e.g. 10 or -2">
+  <label>Reason</label><select id="smReason"><option>Restock</option><option>Damaged</option><option>Correction</option><option>Returned</option></select>
+  <div style="margin-top:14px;text-align:right"><button class="btn sec" data-close>Cancel</button> <button class="btn" id="smSave">Apply</button></div>
+</div></div>
+
+<!-- Receipt modal -->
+<div class="modal" id="rcModal"><div class="box" id="receiptBox">
+  <div id="receipt"></div>
+  <div style="margin-top:14px;text-align:right"><button class="btn sec" data-close>Close</button> <button class="btn" onclick="window.print()">🖨 Print</button></div>
+</div></div>
+
+<script>
+const KEY='ruby_pos_v1';
+const $=s=>document.querySelector(s);
+const peso=n=>'₱'+(+n||0).toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2});
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+
+const defaults=()=>({
+  settings:{name:'RUBY Fashionable II',contact:'Minglanilla, Cebu | +63 954 465 2998',low:3,cats:['Bags','Watches','Shoes']},
+  products:[
+    {id:uid(),name:'Sample Handbag',sku:'BAG-001',cat:'Bags',cost:450,price:850,stock:10,emoji:'👜'},
+    {id:uid(),name:'Sample Watch',sku:'WTC-001',cat:'Watches',cost:300,price:650,stock:8,emoji:'⌚'},
+    {id:uid(),name:'Sample Sandals',sku:'SHO-001',cat:'Shoes',cost:250,price:500,stock:2,emoji:'👟'}
+  ],
+  sales:[],counter:0
+});
+let db;
+try{db=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+if(!db||!db.products)db=defaults();
+const save=()=>localStorage.setItem(KEY,JSON.stringify(db));
+let cart=[]; // {id,qty}
+let editId=null,stockId=null;
+
+/* ---------- Tabs ---------- */
+$('#nav').onclick=e=>{const t=e.target.dataset.tab;if(!t)return;
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b===e.target));
+  document.querySelectorAll('.tab').forEach(s=>s.classList.toggle('active',s.id===t));render()};
+document.addEventListener('click',e=>{if(e.target.dataset.close!==undefined)e.target.closest('.modal').classList.remove('show')});
+
+const statusOf=p=>p.stock<=0?['Out','b-out']:p.stock<=db.settings.low?['Low','b-low']:['OK','b-ok'];
+function fillCats(sel,all,label){sel.innerHTML=(all?`<option value="">${label||'All categories'}</option>`:'')+db.settings.cats.map(c=>`<option>${esc(c)}</option>`).join('')}
+
+/* ---------- Dashboard ---------- */
+function renderDash(){
+  const today=new Date().toDateString();
+  const ts=db.sales.filter(s=>new Date(s.date).toDateString()===today);
+  const sum=(a,f)=>a.reduce((x,y)=>x+f(y),0);
+  const invVal=sum(db.products,p=>p.cost*p.stock),retail=sum(db.products,p=>p.price*p.stock);
+  const st=[['Sales Today',peso(sum(ts,s=>s.total)),ts.length+' orders'],['Profit Today',peso(sum(ts,s=>s.profit)),''],
+   ['All-time Sales',peso(sum(db.sales,s=>s.total)),db.sales.length+' orders'],['Inventory (cost)',peso(invVal),'Retail '+peso(retail)],
+   ['Items',db.products.length,sum(db.products,p=>p.stock)+' pcs in stock']];
+  $('#stats').innerHTML=st.map(x=>`<div class="card stat"><small>${x[0]}</small><b>${x[1]}</b><small>${x[2]}</small></div>`).join('');
+  const low=db.products.filter(p=>p.stock<=db.settings.low).sort((a,b)=>a.stock-b.stock);
+  $('#lowList').innerHTML=low.length?low.map(p=>`<div class="row"><span>${esc(p.emoji)} ${esc(p.name)}</span><span class="badge ${statusOf(p)[1]}">${p.stock} left</span></div>`).join(''):'<div class="empty">Okay lahat ng stock ✅</div>';
+  const cnt={};db.sales.forEach(s=>s.items.forEach(i=>cnt[i.name]=(cnt[i.name]||0)+i.qty));
+  const best=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  $('#bestList').innerHTML=best.length?best.map(b=>`<div class="row"><span>${esc(b[0])}</span><b>${b[1]} sold</b></div>`).join(''):'<div class="empty">Wala pang benta</div>';
+  const rec=db.sales.slice(-5).reverse();
+  $('#recentList').innerHTML=rec.length?rec.map(s=>`<div class="row"><span>${esc(s.no)} · ${esc(s.customer||'Walk-in')}</span><b>${peso(s.total)}</b></div>`).join(''):'<div class="empty">Wala pang benta</div>';
+}
+
+/* ---------- POS ---------- */
+function renderPos(){
+  const q=$('#posSearch').value.toLowerCase(),c=$('#posCat').value;
+  const list=db.products.filter(p=>(!c||p.cat===c)&&(p.name+p.sku).toLowerCase().includes(q));
+  $('#posProducts').innerHTML=list.length?list.map(p=>`<div class="prod ${p.stock<=0?'out':''}" data-id="${p.id}">
+    ${p.img?`<img class="img" src="${p.img}">`:`<div class="em">${esc(p.emoji||'🛍️')}</div>`}
+    <div class="n">${esc(p.name)}</div><div class="p">${peso(p.price)}</div><div class="s">Stock: ${p.stock}</div></div>`).join(''):'<div class="empty">Walang item</div>';
+  renderCart();
+}
+$('#posProducts').onclick=e=>{const el=e.target.closest('.prod');if(el)addToCart(el.dataset.id)};
+function addToCart(id){const p=db.products.find(x=>x.id===id);if(!p)return;
+  const l=cart.find(x=>x.id===id);
+  if((l?l.qty:0)+1>p.stock)return alert('Hindi na sapat ang stock.');
+  l?l.qty++:cart.push({id,qty:1});renderCart()}
+function totals(){
+  const sub=cart.reduce((s,l)=>{const p=db.products.find(x=>x.id===l.id);return s+p.price*l.qty},0);
+  const disc=Math.min(+$('#discount').value||0,sub),ship=+$('#shipping').value||0;
+  return{sub,disc,ship,grand:sub-disc+ship}}
+function renderCart(){
+  $('#cartLines').innerHTML=cart.length?cart.map(l=>{const p=db.products.find(x=>x.id===l.id);
+    return `<div class="line"><div class="nm">${esc(p.name)}<br><small>${peso(p.price)}</small></div>
+    <div class="q"><button data-a="-" data-id="${l.id}">−</button><b>${l.qty}</b><button data-a="+" data-id="${l.id}">+</button></div>
+    <b>${peso(p.price*l.qty)}</b><button class="btn sm sec" data-a="x" data-id="${l.id}">✕</button></div>`}).join(''):'<div class="empty">Walang laman ang cart</div>';
+  const t=totals();
+  $('#subtotal').textContent=peso(t.sub);$('#discAmt').textContent='-'+peso(t.disc);$('#shipAmt').textContent=peso(t.ship);
+  $('#grand').textContent=peso(t.grand);
+  const r=+$('#received').value||0;$('#change').textContent=peso(Math.max(0,r-t.grand));
+  $('#checkout').disabled=!cart.length;
+}
+$('#cartLines').onclick=e=>{const a=e.target.dataset.a,id=e.target.dataset.id;if(!a)return;
+  const l=cart.find(x=>x.id===id),p=db.products.find(x=>x.id===id);
+  if(a==='+'){if(l.qty+1>p.stock)return alert('Hindi na sapat ang stock.');l.qty++}
+  else if(a==='-'){l.qty--;if(l.qty<=0)cart=cart.filter(x=>x!==l)}
+  else cart=cart.filter(x=>x!==l);
+  renderCart()};
+['discount','shipping','received'].forEach(i=>$('#'+i).oninput=renderCart);
+$('#posSearch').oninput=renderPos;$('#posCat').onchange=renderPos;
+$('#clearCart').onclick=()=>{cart=[];renderCart()};
+$('#checkout').onclick=()=>{
+  if(!cart.length)return;const t=totals();
+  const pay=$('#payMethod').value,rec=+$('#received').value||0;
+  if(pay==='Cash'&&rec&&rec<t.grand)return alert('Kulang ang amount received.');
+  for(const l of cart){const p=db.products.find(x=>x.id===l.id);if(l.qty>p.stock)return alert('Kulang ang stock ng '+p.name)}
+  let cost=0;
+  const items=cart.map(l=>{const p=db.products.find(x=>x.id===l.id);p.stock-=l.qty;cost+=p.cost*l.qty;
+    return{id:p.id,name:p.name,sku:p.sku,qty:l.qty,price:p.price,cost:p.cost}});
+  db.counter++;
+  const sale={no:'R-'+String(db.counter).padStart(5,'0'),date:new Date().toISOString(),customer:$('#custName').value.trim(),
+    contact:$('#custContact').value.trim(),items,subtotal:t.sub,discount:t.disc,shipping:t.ship,total:t.grand,
+    payment:pay,received:rec||t.grand,profit:t.sub-t.disc-cost};
+  db.sales.push(sale);save();
+  cart=[];['custName','custContact','received'].forEach(i=>$('#'+i).value='');$('#discount').value=0;$('#shipping').value=0;
+  renderPos();showReceipt(sale)};
+
+function showReceipt(s){
+  const w=32,line='-'.repeat(w),c=(t)=>' '.repeat(Math.max(0,(w-t.length)/2|0))+t;
+  const lr=(a,b)=>a+' '.repeat(Math.max(1,w-a.length-b.length))+b;
+  let o=[c(db.settings.name),c(db.settings.contact),line,'Receipt: '+s.no,new Date(s.date).toLocaleString('en-PH'),
+   'Customer: '+(s.customer||'Walk-in'),line];
+  s.items.forEach(i=>{o.push(i.name);o.push(lr(`  ${i.qty} x ${peso(i.price)}`,peso(i.qty*i.price)))});
+  o.push(line,lr('Subtotal',peso(s.subtotal)));
+  if(s.discount)o.push(lr('Discount','-'+peso(s.discount)));
+  if(s.shipping)o.push(lr('Shipping',peso(s.shipping)));
+  o.push(lr('TOTAL',peso(s.total)),lr('Paid ('+s.payment+')',peso(s.received)),lr('Change',peso(Math.max(0,s.received-s.total))),line,c('Salamat po! Thank you!'));
+  $('#receipt').textContent=o.join('\n');$('#rcModal').classList.add('show')}
+
+/* ---------- Inventory ---------- */
+function renderInv(){
+  const q=$('#invSearch').value.toLowerCase(),c=$('#invCat').value,f=$('#invFilter').value;
+  const list=db.products.filter(p=>(!c||p.cat===c)&&(p.name+p.sku).toLowerCase().includes(q)&&
+    (!f||(f==='out'?p.stock<=0:(p.stock>0&&p.stock<=db.settings.low))));
+  $('#invBody').innerHTML=list.length?list.map(p=>{const s=statusOf(p);return `<tr>
+    <td>${p.img?`<img src="${p.img}" style="width:28px;height:28px;border-radius:4px;vertical-align:middle;object-fit:cover">`:esc(p.emoji||'🛍️')} ${esc(p.name)}</td>
+    <td>${esc(p.sku)}</td><td>${esc(p.cat)}</td><td class="r">${peso(p.cost)}</td><td class="r">${peso(p.price)}</td>
+    <td class="r"><b>${p.stock}</b></td><td><span class="badge ${s[1]}">${s[0]}</span></td><td class="r">${peso(p.cost*p.stock)}</td>
+    <td class="r" style="white-space:nowrap"><button class="btn sm sec" data-a="stock" data-id="${p.id}">± Stock</button>
+    <button class="btn sm sec" data-a="edit" data-id="${p.id}">Edit</button>
+    <button class="btn sm sec" data-a="del" data-id="${p.id}">🗑</button></td></tr>`}).join(''):'<tr><td colspan="9" class="empty">Walang item. Click "+ Add Item".</td></tr>';
+  $('#invSummary').textContent=`${list.length} item(s) · ${list.reduce((s,p)=>s+p.stock,0)} pcs · Cost value ${peso(list.reduce((s,p)=>s+p.cost*p.stock,0))}`;
+}
+['invSearch','invCat','invFilter'].forEach(i=>$('#'+i).oninput=renderInv);
+$('#addProd').onclick=()=>openProd();
+function openProd(id){
+  editId=id||null;const p=db.products.find(x=>x.id===id)||{};
+  fillCats($('#pCat'));$('#pmTitle').textContent=id?'Edit Item':'Add Item';
+  $('#pName').value=p.name||'';$('#pSku').value=p.sku||'';$('#pCat').value=p.cat||db.settings.cats[0];
+  $('#pCost').value=p.cost??'';$('#pPrice').value=p.price??'';$('#pStock').value=p.stock??0;$('#pEmoji').value=p.emoji||'';$('#pImg').value='';
+  $('#prodModal').classList.add('show')}
+$('#pSave').onclick=async()=>{
+  const name=$('#pName').value.trim();if(!name)return alert('Lagyan ng pangalan.');
+  const o={name,sku:$('#pSku').value.trim()||('SKU-'+(db.products.length+1)),cat:$('#pCat').value,cost:+$('#pCost').value||0,
+    price:+$('#pPrice').value||0,stock:Math.max(0,parseInt($('#pStock').value)||0),emoji:$('#pEmoji').value.trim()};
+  const file=$('#pImg').files[0];
+  if(file)o.img=await new Promise(r=>{const im=new Image(),fr=new FileReader();fr.onload=()=>{im.onload=()=>{
+    const k=Math.min(1,200/Math.max(im.width,im.height)),cv=document.createElement('canvas');cv.width=im.width*k;cv.height=im.height*k;
+    cv.getContext('2d').drawImage(im,0,0,cv.width,cv.height);r(cv.toDataURL('image/jpeg',.7))};im.src=fr.result};fr.readAsDataURL(file)});
+  if(editId)Object.assign(db.products.find(x=>x.id===editId),o);else db.products.push({id:uid(),...o});
+  save();$('#prodModal').classList.remove('show');renderInv()};
+$('#invBody').onclick=e=>{const a=e.target.dataset.a,id=e.target.dataset.id;if(!a)return;
+  const p=db.products.find(x=>x.id===id);
+  if(a==='edit')openProd(id);
+  else if(a==='del'){if(confirm(`Delete "${p.name}"?`)){db.products=db.products.filter(x=>x.id!==id);cart=cart.filter(x=>x.id!==id);save();renderInv()}}
+  else{stockId=id;$('#smName').textContent=p.name;$('#smCur').textContent=p.stock;$('#smQty').value='';$('#stockModal').classList.add('show')}};
+$('#smSave').onclick=()=>{const q=parseInt($('#smQty').value);if(!q)return;
+  const p=db.products.find(x=>x.id===stockId);p.stock=Math.max(0,p.stock+q);save();$('#stockModal').classList.remove('show');renderInv()};
+
+/* ---------- Sales ---------- */
+function filteredSales(){
+  const f=$('#salesFrom').value,t=$('#salesTo').value,q=$('#salesSearch').value.toLowerCase();
+  return db.sales.filter(s=>{const d=s.date.slice(0,10);const ld=new Date(s.date);const local=ld.getFullYear()+'-'+String(ld.getMonth()+1).padStart(2,'0')+'-'+String(ld.getDate()).padStart(2,'0');
+    return(!f||local>=f)&&(!t||local<=t)&&(s.no+(s.customer||'')).toLowerCase().includes(q)}).reverse()}
+function renderSales(){
+  const l=filteredSales();
+  $('#salesBody').innerHTML=l.length?l.map(s=>`<tr><td>${esc(s.no)}</td><td>${new Date(s.date).toLocaleString('en-PH')}</td><td>${esc(s.customer||'Walk-in')}</td>
+   <td>${s.items.map(i=>esc(i.name)+' ×'+i.qty).join(', ')}</td><td>${esc(s.payment)}</td><td class="r">${peso(s.total)}</td><td class="r">${peso(s.profit)}</td>
+   <td class="r" style="white-space:nowrap"><button class="btn sm sec" data-a="view" data-no="${s.no}">Receipt</button> <button class="btn sm sec" data-a="void" data-no="${s.no}">Void</button></td></tr>`).join(''):'<tr><td colspan="8" class="empty">Walang benta</td></tr>';
+  $('#salesSummary').textContent=`${l.length} order(s) · Sales ${peso(l.reduce((s,x)=>s+x.total,0))} · Profit ${peso(l.reduce((s,x)=>s+x.profit,0))}`}
+['salesFrom','salesTo','salesSearch'].forEach(i=>$('#'+i).oninput=renderSales);
+$('#salesBody').onclick=e=>{const a=e.target.dataset.a,no=e.target.dataset.no;if(!a)return;const s=db.sales.find(x=>x.no===no);
+  if(a==='view')showReceipt(s);
+  else if(confirm(`Void ${no}? Ibabalik ang stock.`)){
+    s.items.forEach(i=>{const p=db.products.find(x=>x.id===i.id);if(p)p.stock+=i.qty});
+    db.sales=db.sales.filter(x=>x!==s);save();renderSales()}};
+$('#exportSales').onclick=()=>{
+  const rows=[['Receipt','Date','Customer','Contact','Items','Payment','Subtotal','Discount','Shipping','Total','Profit']];
+  filteredSales().forEach(s=>rows.push([s.no,s.date,s.customer,s.contact,s.items.map(i=>i.name+' x'+i.qty).join('; '),s.payment,s.subtotal,s.discount,s.shipping,s.total,s.profit]));
+  download('sales.csv',rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\n'),'text/csv')};
+function download(name,text,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click()}
+
+/* ---------- Settings ---------- */
+function renderSet(){const s=db.settings;$('#setName').value=s.name;$('#setContact').value=s.contact;$('#setLow').value=s.low;$('#setCats').value=s.cats.join(', ')}
+$('#saveSettings').onclick=()=>{const cats=$('#setCats').value.split(',').map(x=>x.trim()).filter(Boolean);
+  if(!cats.length)return alert('Maglagay ng kahit isang category.');
+  Object.assign(db.settings,{name:$('#setName').value.trim()||'My Store',contact:$('#setContact').value.trim(),low:+$('#setLow').value||0,cats});
+  save();alert('Saved!');render()};
+$('#backup').onclick=()=>download('ruby-pos-backup-'+new Date().toISOString().slice(0,10)+'.json',JSON.stringify(db),'application/json');
+$('#restore').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.products||!d.sales)throw 0;db=d;save();cart=[];render();alert('Restored!')}catch{alert('Invalid backup file.')}};r.readAsText(f)};
+$('#resetAll').onclick=()=>{if(confirm('Burahin LAHAT ng data? Hindi na mababalik.')){db=defaults();cart=[];save();render()}};
+
+function render(){
+  fillCats($('#posCat'),true);fillCats($('#invCat'),true);
+  renderDash();renderPos();renderInv();renderSales();renderSet()}
+render();
+</script>
+</body>
+</html>
