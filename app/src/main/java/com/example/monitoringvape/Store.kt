@@ -46,27 +46,21 @@ class Store(context: Context) {
 
     // ---------- Sales ----------
 
-    fun checkout(cart: Map<String, Int>, method: String, paid: Double): Result<Sale> {
-        val items = mutableListOf<SaleItem>()
-        for ((id, qty) in cart) {
-            val p = products.find { it.id == id }
-                ?: return Result.failure(Exception("May produktong wala na sa inventory"))
-            if (qty > p.stock) return Result.failure(Exception("Kulang ang stock ng ${p.name}"))
-            items.add(SaleItem(p.id, p.name, qty, p.price, p.cost))
-        }
-        for (item in items) {
-            val i = products.indexOfFirst { it.id == item.productId }
-            products[i] = products[i].copy(stock = products[i].stock - item.qty)
-        }
+    /** Record a sale of [qty] pieces of one product. Stock is deducted automatically. */
+    fun sell(productId: String, qty: Int): Result<Sale> {
+        val i = products.indexOfFirst { it.id == productId }
+        if (i < 0) return Result.failure(Exception("Wala na ang produktong ito"))
+        val p = products[i]
+        if (qty <= 0) return Result.failure(Exception("Maglagay ng tamang bilang"))
+        if (qty > p.stock) return Result.failure(Exception("Kulang ang stock (natitira: ${p.stock})"))
+        products[i] = p.copy(stock = p.stock - qty)
         receiptNo++
         val sale = Sale(
             id = newId(),
             no = receiptNo,
             time = System.currentTimeMillis(),
-            items = items,
-            total = items.sumOf { it.price * it.qty },
-            method = method,
-            paid = paid
+            items = listOf(SaleItem(p.id, p.name, qty, p.price, p.cost)),
+            total = p.price * qty
         )
         sales.add(0, sale)
         save()
@@ -116,7 +110,7 @@ class Store(context: Context) {
             s.put(
                 JSONObject()
                     .put("id", sale.id).put("no", sale.no).put("time", sale.time)
-                    .put("total", sale.total).put("method", sale.method).put("paid", sale.paid)
+                    .put("total", sale.total)
                     .put("items", items)
             )
         }
@@ -154,7 +148,7 @@ class Store(context: Context) {
                 sales.add(
                     Sale(
                         o.getString("id"), o.getInt("no"), o.getLong("time"), items,
-                        o.getDouble("total"), o.getString("method"), o.getDouble("paid")
+                        o.getDouble("total")
                     )
                 )
             }

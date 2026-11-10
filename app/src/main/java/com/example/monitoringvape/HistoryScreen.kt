@@ -38,7 +38,7 @@ fun HistoryScreen(store: Store) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Column(Modifier.weight(1f)) {
                             Text("Resibo ${receiptLabel(s.no)}", fontWeight = FontWeight.Bold)
-                            Text("${formatTime(s.time)} · ${s.method}", style = MaterialTheme.typography.bodySmall)
+                            Text(formatTime(s.time), style = MaterialTheme.typography.bodySmall)
                         }
                         Text(peso(s.total), fontWeight = FontWeight.Bold)
                     }

@@ -33,7 +33,5 @@ data class Sale(
     val no: Int,
     val time: Long,
     val items: List<SaleItem>,
-    val total: Double,
-    val method: String,
-    val paid: Double
+    val total: Double
 )

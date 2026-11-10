@@ -4,10 +4,12 @@ Simpleng POS + inventory monitoring para sa vape shop. Android (Kotlin + Jetpack
 Offline, walang extra dependencies — naka-save ang data sa phone (SharedPreferences).
 
 ## Features
-- **Benta (POS):** hanapin ang produkto, cart, Cash / GCash / Card, sukli, 18+ ID check bago mag-checkout
-- **Inventory:** dagdag/edit/burahin ang produkto, puhunan at presyo, +Stock, low-stock alert
-- **Kasaysayan:** lahat ng resibo, may Void (ibabalik ang stock)
-- **Report:** benta, kita, top products, halaga ng stock (Ngayon / 7 araw / 30 araw / Lahat)
+- **Dashboard (awtomatiko):** kita (profit), benta, ilang piraso ang nabawas, natitirang stock, at bawat produkto (nabenta / kita / natitira). Pwedeng Ngayon, 7 araw, 30 araw o Lahat. Nag-a-update agad kapag may bagong benta.
+- **Benta:** isang tap lang sa **Benta ×1** (o **Ibang dami**) — awtomatikong nababawasan ang stock at pumapasok ang kita. May **UNDO** kapag nagkamali.
+- **Inventory:** dagdag/edit/burahin ang produkto (puhunan, presyo, stock), `+Stock`, low-stock alert
+- **Kasaysayan:** lahat ng naitalang benta, may Void (ibabalik ang stock)
+
+Kita = (presyo − puhunan) × dami.
 
 ## Paano ilagay sa Android Studio project mo
 1. Buksan ang `MonitoringVape` project.

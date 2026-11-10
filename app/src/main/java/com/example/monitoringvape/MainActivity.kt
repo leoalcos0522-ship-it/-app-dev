@@ -12,7 +12,9 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -39,10 +41,10 @@ class MainActivity : ComponentActivity() {
 }
 
 private val tabs = listOf(
+    "Dashboard" to "📊",
     "Benta" to "🛒",
     "Inventory" to "📦",
-    "Kasaysayan" to "🧾",
-    "Report" to "📊"
+    "Kasaysayan" to "🧾"
 )
 
 @Composable
@@ -50,12 +52,15 @@ fun VapeApp(store: Store) {
     var tab by rememberSaveable { mutableIntStateOf(0) }
     val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-    val notify: (String) -> Unit = { msg ->
+    // notify(message, actionLabel, onAction) - the action (e.g. UNDO) is optional.
+    val notify: (String, String?, (() -> Unit)?) -> Unit = { msg, actionLabel, onAction ->
         scope.launch {
             snackbar.currentSnackbarData?.dismiss()
-            snackbar.showSnackbar(msg)
+            val result = snackbar.showSnackbar(msg, actionLabel, duration = SnackbarDuration.Long)
+            if (result == SnackbarResult.ActionPerformed) onAction?.invoke()
         }
     }
+    val notifySimple: (String) -> Unit = { notify(it, null, null) }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -75,10 +80,10 @@ fun VapeApp(store: Store) {
     ) { padding ->
         Box(Modifier.padding(padding).statusBarsPadding()) {
             when (tab) {
-                0 -> PosScreen(store, notify)
-                1 -> InventoryScreen(store, notify)
-                2 -> HistoryScreen(store)
-                else -> ReportScreen(store)
+                0 -> DashboardScreen(store)
+                1 -> SellScreen(store, notify)
+                2 -> InventoryScreen(store, notifySimple)
+                else -> HistoryScreen(store)
             }
         }
     }
