@@ -7,6 +7,7 @@ Offline, walang extra dependencies — naka-save ang data sa phone (SharedPrefer
 - **Dashboard (awtomatiko):** kita (profit), benta, ilang piraso ang nabawas, natitirang stock, at bawat produkto (nabenta / kita / natitira). Pwedeng Ngayon, 7 araw, 30 araw o Lahat. Nag-a-update agad kapag may bagong benta.
 - **Benta:** isang tap lang sa **Benta ×1** (o **Ibang dami**) — awtomatikong nababawasan ang stock at pumapasok ang kita. May **UNDO** kapag nagkamali.
 - **Inventory:** dagdag/edit/burahin ang produkto (puhunan, presyo, stock), `+Stock`, low-stock alert
+- **Password:** gagawa ka ng password sa unang bukas; hihingin ito tuwing bubuksan ang app o babalik mula sa ibang app. May **I-lock** at **Palitan ang password** sa Dashboard. (Kapag nakalimutan, kailangang i-clear ang data ng app.)
 - **Kasaysayan:** lahat ng naitalang benta, may Void (ibabalik ang stock)
 
 Kita = (presyo − puhunan) × dami.

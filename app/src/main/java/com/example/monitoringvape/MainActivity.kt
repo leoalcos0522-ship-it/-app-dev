@@ -19,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -28,15 +29,35 @@ import com.example.monitoringvape.ui.theme.MonitoringVapeTheme
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
+    // Locked whenever the app starts or goes to the background.
+    private var unlocked by mutableStateOf(false)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        unlocked = savedInstanceState?.getBoolean("unlocked") == true
         val store = Store(applicationContext)
+        val auth = Auth(applicationContext)
         setContent {
             MonitoringVapeTheme {
-                VapeApp(store)
+                if (unlocked) {
+                    VapeApp(store, auth, onLock = { unlocked = false })
+                } else {
+                    LockScreen(auth) { unlocked = true }
+                }
             }
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean("unlocked", unlocked)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        // Rotating the screen is not "leaving the app", so stay unlocked then.
+        if (!isChangingConfigurations) unlocked = false
     }
 }
 
@@ -48,7 +69,7 @@ private val tabs = listOf(
 )
 
 @Composable
-fun VapeApp(store: Store) {
+fun VapeApp(store: Store, auth: Auth, onLock: () -> Unit) {
     var tab by rememberSaveable { mutableIntStateOf(0) }
     val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -80,7 +101,7 @@ fun VapeApp(store: Store) {
     ) { padding ->
         Box(Modifier.padding(padding).statusBarsPadding()) {
             when (tab) {
-                0 -> DashboardScreen(store)
+                0 -> DashboardScreen(store, auth, onLock)
                 1 -> SellScreen(store, notify)
                 2 -> InventoryScreen(store, notifySimple)
                 else -> HistoryScreen(store)

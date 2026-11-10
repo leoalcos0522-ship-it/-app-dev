@@ -14,6 +14,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -25,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 
 /**
@@ -33,10 +35,11 @@ import androidx.compose.ui.unit.dp
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DashboardScreen(store: Store) {
+fun DashboardScreen(store: Store, auth: Auth, onLock: () -> Unit) {
     val ranges = listOf("Ngayon" to 0, "7 araw" to 6, "30 araw" to 29, "Lahat" to -1)
     var selected by remember { mutableIntStateOf(0) }
     var confirmReset by remember { mutableStateOf(false) }
+    var changePw by remember { mutableStateOf(false) }
 
     val since = ranges[selected].second.let { if (it < 0) 0L else startOfDay(it) }
     val sales = store.sales.filter { it.time >= since }
@@ -134,15 +137,43 @@ fun DashboardScreen(store: Store) {
             }
         }
 
+        item {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(onClick = onLock) { Text("🔒 I-lock") }
+                OutlinedButton(onClick = { changePw = true }) { Text("Palitan ang password") }
+            }
+        }
         item { OutlinedButton(onClick = { confirmReset = true }) { Text("Burahin lahat ng data") } }
     }
 
+    if (changePw) {
+        ChangePasswordDialog(auth, onDismiss = { changePw = false }, onDone = { changePw = false })
+    }
+
     if (confirmReset) {
+        var pw by remember { mutableStateOf("") }
+        var wrong by remember { mutableStateOf(false) }
         AlertDialog(
             onDismissRequest = { confirmReset = false },
             title = { Text("Burahin LAHAT?") },
-            text = { Text("Mabubura ang lahat ng produkto at benta. Hindi na ito mababawi.") },
-            confirmButton = { TextButton(onClick = { store.resetAll(); confirmReset = false }) { Text("Oo, burahin") } },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("Mabubura ang lahat ng produkto at benta. Hindi na ito mababawi. Ilagay ang password para magpatuloy.")
+                    OutlinedTextField(
+                        value = pw,
+                        onValueChange = { pw = it; wrong = false },
+                        label = { Text("Password") },
+                        singleLine = true,
+                        isError = wrong,
+                        visualTransformation = PasswordVisualTransformation()
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    if (auth.check(pw)) { store.resetAll(); confirmReset = false } else wrong = true
+                }) { Text("Oo, burahin") }
+            },
             dismissButton = { TextButton(onClick = { confirmReset = false }) { Text("Cancel") } }
         )
     }
